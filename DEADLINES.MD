@@ -1,0 +1,2 @@
+14/10, clasificacion binaria
+31/10 TIME SERIES ANALISIS, PRESENTACION

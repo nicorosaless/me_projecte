@@ -18,8 +18,126 @@ library(dplyr)
 ```
 
 ```{r echo = FALSE, message=FALSE}
-dd    <- read.csv("demographic.csv") # Llegir
+dd    <- read.csv("C:/Users/javil/OneDrive/Documentos/UPC/2n/ME/Proyecto/demographic/demographic.csv") # Llegir
 summary(dd)
+```
+#Description
+'RIAGENDR',          # género del participante, factor, 1 hombre 2 mujer
+    'RIDAGEYR',          # edad del participante, numerica
+    'RIDRETH3',          # raza / etnia, factor 1:Mexican American 2:Other Hispanic 3:Non-Hispanic White 4:Non-Hispanic Black 6:Non-Hispanic Asian 7:Other Race - Including Multi-Racial
+    'DMDBORN4',          # país de nacimiento, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
+    'DMDCITZN',          # ciudadanía, factor
+    'SIALANG',           # idioma de entrevista, factor, 1 english 2 spanish
+    'SIAINTRP',          # uso de intérprete, factor 1 yes 2 no
+    'DMDFMSIZ',          # tamaño de la familia, numerica discreta
+    'DMDHHSZA',          # niños <5, factor 0:none 1:1, 2:2, 3:3 o mas
+    'DMDHHSZB',          # niños 6–17, factor 0:none 1:1, 2:2, 3:3, 4:4 o mas
+    'DMDHHSZE',          # adultos ≥60, factor, 0:none 1:1, 2:2, 3:3 o mas
+    'DMDHRGND',          # género del cabeza de familia, factor 1 hombre 2 mujer
+    'DMDHRAGE',          # edad del cabeza de familia, numerica discreta
+    'DMDHRBR4',          # país de nacimiento del cabeza, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
+    'DMDHREDU',          # educación del cabeza, factor 1:Less than 9th grade 2:9-11th grade (Includes 12th grade with no diploma) 3:High school graduate/GED or equivalent 4:Some college or AA degree 5:College graduate or above 7:refused 9:Don't know
+    'DMDHRMAR'           # estado civil del cabeza, factor 1:Married 2:Widowed 3:Divorced 4:Separated 5:Never married 6:Living with partner 77:Refused 99:Don't know
+
+
+#Escogemos las variables
+```{r echo = FALSE, message=FALSE}
+selected_features <- c(
+  'RIAGENDR', 'RIDAGEYR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
+  'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
+  'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
+  'DMDHRMAR', 'INDFMPIR' 
+)
+dd <- dd[, colnames(dd) %in% selected_features]
+summary(dd)
+```
+#juntamos missing values, refused y dont know en una sola categoria 0
+```{r echo = FALSE, message=FALSE}
+
+# DMDCITZN: valores existentes [1,2, NA, 7,9]
+dd$DMDCITZN <- as.numeric(dd$DMDCITZN)
+dd$DMDCITZN[dd$DMDCITZN %in% c(7,9) | is.na(dd$DMDCITZN)] <- 0
+
+# DMDHRBR4: valores existentes [1,2, NA,77]
+dd$DMDHRBR4 <- as.numeric(dd$DMDHRBR4)
+dd$DMDHRBR4[dd$DMDHRBR4 %in% c(77) | is.na(dd$DMDHRBR4)] <- 0
+
+# DMDHREDU: valores existentes [1,2,3,4,5,NA,7,9]
+dd$DMDHREDU <- as.numeric(dd$DMDHREDU)
+dd$DMDHREDU[dd$DMDHREDU %in% c(7,9) | is.na(dd$DMDHREDU)] <- 0 
+
+# DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
+dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
+dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0  
+summary(dd)
+```
+
+#variables como factores para tratarlas como es debido
+```{r echo = FALSE, message=FALSE}
+factor_vars <- c(
+  'RIAGENDR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN', 
+  'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
+  'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
+  'DMDHRMAR'
+)
+
+# Convertir a factor
+dd[factor_vars] <- lapply(dd[factor_vars], as.factor)
+summary(dd)
+```
+#vemos distribucion target variable
+```{r echo = FALSE, message=FALSE}
+hist(
+  dd$INDFMPIR[!is.na(dd$INDFMPIR)],
+  main = "Distribución de INDFMPIR (sin NA)",
+  xlab = "INDFMPIR",
+  ylab = "Frecuencia",
+  col = "lightblue",
+  border = "white"
+)
+```
+#imputamos los na's por la media porque no sigue distribucion normal
+```{r echo = FALSE, message=FALSE}
+dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
+
+summary(dd)
+```
+
+```{r echo = FALSE, message=FALSE}
+library(RcmdrMisc)
+response_var <- "INDFMPIR"
+str(dd$INDFMPIR)
+
+```
+
+#probamos modelo lineal con funcion gaussiana como prueba
+
+```{r echo=FALSE, message=FALSE}
+
+mlgz <- glm(INDFMPIR ~ ., dd, family = gaussian(link=identity))
+summary(mlgz)
+```
+#vemos la relevancia de las variables
+```{r echo=FALSE, message=FALSE}
+Anova(mlgz, test.statistic = 'LR')
+```
+#validacion numerica
+```{r echo=FALSE, message=FALSE}
+pearson_chisq <- sum(residuals(mlgz, type = "pearson")^2)
+df_resid <- df.residual(mlgz)
+pearson_ratio <- pearson_chisq / df_resid
+pearson_ratio
+
+```
+
+```{r echo = FALSE, message=FALSE}
+
+mlgz2 <- glm(INDFMPIR ~ . - RIAGENDR - DMDBORN4 - DMDFMSIZ,
+             data = dd,
+             family = gaussian(link = "identity"))
+summary(mlgz2)
+
+Anova(mlgz2, test.statistic = 'LR')
 ```
 
 

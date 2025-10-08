@@ -1,0 +1,48 @@
+Variable Name,Variable Description,Data File Name,Data File Description,Begin Year,EndYear,Component,Use Constraints
+AIALANGA,Language of the MEC ACASI Interview Instrument,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDBORN4,"In what country {were you/was SP} born?",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDCITZN,"{Are you/Is SP} a citizen of the United States? [Information about citizenship is being collected by the U.S. Public Health Service to perform health related research. Providing this information is voluntary and is collected under the authority of the Public Health Service Act. There will be no effect on pending immigration or citizenship petitions.]",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDEDUC2,"What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received?",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDEDUC3,"What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received?",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDFMSIZ,Total number of people in the Family,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHHSIZ,Total number of people in the Household,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHHSZA,Number of children aged 5 years or younger in the household,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHHSZB,Number of children aged 6-17 years old in the household,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHHSZE,Number of adults aged 60 years or older in the household,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHRAGE,HH reference person's age in years,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHRBR4,HH reference person's country of birth,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHREDU,HH reference person's education level,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHRGND,HH reference person's gender,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHRMAR,HH reference person's marital status,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDHSEDU,HH reference person's spouse's education level,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDMARTL,Marital status,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMDYRSUS,Length of time the participant has been in the US.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMQADFC,"Did {you/SP} ever serve in a foreign country during a time of armed conflict or on a humanitarian or peace-keeping mission? (This would include National Guard or reserve or active duty monitoring or conducting peace keeping operations in Bosnia and Kosovo, in the Sinai between Egypt and Israel, or in response to the 2004 tsunami or Haiti in 2010.)",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+DMQMILIZ,"{Have you/Has SP} ever served on active duty in the U.S. Armed Forces, military Reserves, or National Guard? (Active duty does not include training for the Reserves or National Guard, but does include activation, for service in the U.S. or in a foreign country, in support of military or humanitarian operations.)",DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+FIAINTRP,Was an interpreter used to conduct the Family interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+FIALANG,Language of the Family Interview Instrument,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+FIAPROXY,Was a Proxy respondent used in conducting the Family Interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+INDFMIN2,Total family income (reported as a range value in dollars),DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+INDFMPIR,A ratio of family income to poverty guidelines.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+INDHHIN2,Total household income (reported as a range value in dollars),DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+MIAINTRP,Was an interpreter used to conduct the MEC CAPI interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+MIALANG,Language of the MEC CAPI Interview Instrument,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+MIAPROXY,Was a Proxy respondent used in conducting the MEC CAPI Interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIAGENDR,Gender of the participant.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDAGEMN,Age in months of the participant at the time of screening. Reported for persons aged 24 months or younger at the time of exam (or screening if not examined).,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDAGEYR,Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDEXAGM,Age in months of the participant at the time of examination. Reported for persons aged 19 years or younger at the time of examination.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDEXMON,Six month time period when the examination was performed - two categories: November 1 through April 30, May 1 through October 31.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDEXPRG,Pregnancy status for females between 20 and 44 years of age at the time of MEC exam.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDRETH1,Recode of reported race and Hispanic origin information,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDRETH3,Recode of reported race and Hispanic origin information, with Non-Hispanic Asian Category,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+RIDSTATR,Interview and examination status of the participant.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SDDSRVYR,Data release cycle,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SDMVPSU,Masked variance unit pseudo-PSU variable for variance estimation,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SDMVSTRA,Masked variance unit pseudo-stratum variable for variance estimation,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SEQN,Respondent sequence number.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SIAINTRP,Was an interpreter used to conduct the Sample Person (SP) interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SIALANG,Language of the Sample Person Interview Instrument,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+SIAPROXY,Was a Proxy respondent used in conducting the Sample Person (SP) interview?,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+WTINT2YR,Full sample 2 year interview weight.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None
+WTMEC2YR,Full sample 2 year MEC exam weight.,DEMO_H,Demographic Variables and Sample Weights,2013,2014,Demographics,None

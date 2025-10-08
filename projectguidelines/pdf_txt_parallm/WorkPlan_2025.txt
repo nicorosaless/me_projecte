@@ -1,0 +1,168 @@
+Work plan
+COURSE 2025 -26
+STATISTICAL MODELLLING - GIA
+
+Outline
+ Evaluation of the project
+ Initial Working Plan
+
+Evaluation of the project
+ (P1) Collection of data, analysis and interpretation of
+
+results and Transmission of results (80%)
+ (P2) Oral and written communication (20%)
+
+Other skills qualitative assessed:
+ Oral and written communication
+ Teamwork
+ Gender perspective
+
+Workplan
+
+
+Identify main tasks (include reporting, etc...)
+
+
+
+Design the precendence graph among tasks
+
+
+
+Temporal scheduling (carefully thing on precedences among tasks)
+
+
+
+Assign human resorces to tasks (who does what and when) (Ensure
+viability, i.e. everybody with balanced effort assigned and without
+dedication picks that can collapse the team)
+
+
+
+Deserve a time margin before delivery for unexpected incidencies.
+
+
+
+Deserve time to prepare oral presentations also
+
+
+
+There should be a project manager
+
+
+
+Workplan format:
+
+
+Diagram Gant + Assignment grid + Risk plan
+
+Gantt Diagram
+
+Help:
+ https://www.officetimeline.com/gantt-chart/how-to-make/excel
+ https://www.teamgantt.com/what-is-a-gantt-chart
+
+Assignment grid
+Participant
+TasK1
+
+member 1
+
+member2
+
+member3
+
+X
+
+x
+
+x
+
+X
+
+x
+
+Task2
+
+member4
+
+Task3
+
+x
+
+X
+
+Task4
+
+X
+
+x
+
+Coordination: X
+
+
+
+Same list of tasks that Gannt Chart
+
+
+
+Mark who participates in each one
+
+
+
+In boldface the task coordinator
+
+
+
+Each task coordinator is responsible of the good development of
+the task and synchronizes with the coordinators of other tasks
+
+Risk plan
+Risk
+
+How to prevent
+
+How to manage
+
+Risk1
+
+description
+
+Mesure
+
+Ex: a team member leaves
+the course
+
+All tasks have at least
+two members assigned
+
+Pending work reassigned
+to re-balance efforts
+
+Ex: Data have weakstructures and models do not
+perform well
+
+Ensure that technical
+assumptions of models
+are hold on data
+
+Change to models without
+hypothesis that do not fit
+with data
+
+Risk3…
+:
+
+
+
+List possible problems that can appear along the work and can make
+the final work fail
+
+
+
+Plan actions to prevent these situations
+
+
+
+Indicate how you would manage the situation if it finally appears
+
+

@@ -1,0 +1,164 @@
+Presentació
+Modelització Estadística
+Grau en Intel·ligència Artificial
+
+Curs 2025-26
+
+Professorat
+
+▶ Jordi Cortés
+
+▶ C5-2. Despatx 216. Campus
+Nord
+▶ jordi.cortesmartinez@upc.edu
+▶ Consultes: a convenir
+
+▶ Dante Conti
+
+▶ Nexus II. Campus Nord
+▶ dante.conti@upc.edu
+▶ Consultes: a convenir
+
+Temari
+
+1. Models lineals generalitzats
+▶ (5 setmanes)
+
+2. Series Temporals
+▶ (3 setmanes)
+
+3. Anàlisi Factorial
+▶ (1 setmana)
+
+4. Clustering
+
+▶ (2 setmanes)
+
+5. Profiling
+
+▶ (1 setmana)
+
+6. Disseny d’Experiments
+▶ (1.5 setmanes)
+
+Programació provisional
+
+Referències Bàsiques
+▶ Kleiber, C. Annette J. Dobson and Adrian G. Barnett: An
+introduction to generalized linear models. Stat Papers 53,
+805–806 (2012). https://doi.org/10.1007/s00362-011-0375-4
+▶ Practical statistics for data scientists: 50+ essential concepts
+using R and Python - Bruce, Peter; Bruce, Andrew; Gedeck,
+Peter, O’Reilly, [2020]. ISBN: 9781492072942
+▶ Data analysis and graphics using R : an example-based
+approach - Maindonald, J. H; Braun, John, Cambridge
+University, 2010. ISBN: 9780521762939
+▶ Forecasting: principles and practice - Hyndman, R.J.;
+Athanasopoulos, G, O Texts, 2021. ISBN: 9780987507136
+▶ Practical time series analysis: prediction with statistics and
+machine learning - Nielsen, Aileen, O’Reilly Media, Inc, 2019.
+ISBN: 9781492041658
+
+Metodologia
+▶ Classes de Teoria.
+▶ Dimarts (Jordi Cortés).
+▶ Explicació dels conceptes teòrics + Exemples.
+
+▶ Classes de Laboratori.
+▶ Dimecres. 8-10h (Jordi Cortés); 10-12h (Dante Conti)
+▶ Combinaran els següents elements:
+▶ Pràctica dels conceptes teòrics en R
+▶ Treball sobre el projecte final de curs
+▶ Qüestionaris de teoria (darrer laboratori del tema)
+
+Metodologia Projecte
+
+▶ Treball en equip en grups de 4 (Grup 12) o 5 (Grup 11)
+persones.
+▶ Presentació inicial a la setmana de parcials
+▶ Presentació final el darrer dia de classe
+▶ Es proporcionarà un calendari orientatiu de tasques a Atenea
+
+▶ Primeres dates projecte
+▶ Membres de l’equip (Mail). 12 de setembre de 2025
+▶ Equips definitius. 15 de setembre de 2025
+▶ Proposta joc de dades (Atenea). 19 de setembre de 2025
+▶ Acceptació joc de dades. 22 de setembre de 2025
+
+Avaluació: Nota Ordinària (NO)
+Elements avaluables:
+▶ Q. Qüestionaris (20%)
+▶ P. Projecte (30%)
+▶ EF. Examen Final (50%)
+NO = 0, 2Q + 0, 3P + 0, 5EF
+S’haurà d’obtenir una nota mínima d’un 3,5 en les proves individuals
+i presencials, és a dir, s’haurà de complir la següent condició per
+aprovar:
+2/7 · Q + 5/7 · EF > 3, 5
+Per altra banda, la realització del projecte serà obligatòria per
+poder aprovar durant l’avaluació ordinària.
+
+Avaluació: Nota Extraordinària (NE)
+
+Elements avaluables addicionals:
+▶ EE. Examen Extraordinari
+NE = Mínim{7, Màxim{EE , 0, 2Q + 0, 3P + 0, 5EE }}
+En aquesta convocatòria no hi haurà nota mínima per aprovar. La
+màxima nota en aquesta convocatòria és un 7.
+
+Avaluació en detall dels Qüestionaris (Q)
+
+▶ Qüestionaris (Qi ). 5 qüestionaris individuals presencials que
+es faran a les classes de laboratori amb el mateix pes:
+Q=
+
+5
+1X
+Qi
+5 i=1
+
+▶ Són 5 qüestionaris perquè s’ajuntaran els temes de clustering i
+profiling en un mateix qüestionari.
+▶ No es repetiran ni s’ajornaran els qüestionaris sota cap
+concepte (sigui l’absència justificada o no)
+
+Avaluació en detall del Projecte (P)
+▶ Presentació inicial a la setmana de parcials (15% de la nota
+final)
+▶ Presentació final el darrer dia de classe (15% de la nota final).
+▶ Es valorarà de forma quantitativa:
+▶ (P1 ) Recol·lecció de dades, anàlisi, interpretació de resultats i
+transmissió de resultats (80%)
+▶ (P2 ) Comunicació oral i escrita (20%)
+
+▶ Es valorarà de forma qualitativa:
+▶ Comunicació oral i escrita
+▶ Treball en equip
+▶ Perspectiva de gènere
+
+▶ Avaluació:
+
+P = 0, 8P1 + 0, 2P2
+
+Plataforma
+
+▶ En aquesta assignatura emprarem Atenea per penjar els
+materials de l’assignatura i pels avissos.
+
+▶ Configureu els avissos per a que us arribin al correu
+▶ Els qüestionaris es faran a través d’aquesta plataforma
+
+Dates importants
+
+▶ 31 d’octubre de 2025. Pre-Presentació Projecte
+▶ 15:30 - 17:30 → Grup 11
+▶ 17:30 - 19:30 → Grup 12
+
+▶ 17 de desembre de 2025. Presentació Projecte
+▶ 8:00 - 10:00 → Grup 12
+▶ 10:00 - 12:00 → Grup 11
+
+▶ 12 de gener de 2026 (15:00 - 18:00). Examen Final
+▶ 3 de febrer de 2026 (10:00 - 12:00). Reavaluació
+
+

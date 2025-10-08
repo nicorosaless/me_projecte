@@ -18,7 +18,7 @@ library(dplyr)
 ```
 
 ```{r echo = FALSE, message=FALSE}
-dd    <- read.csv("C:/Users/javil/OneDrive/Documentos/UPC/2n/ME/Proyecto/demographic/demographic.csv") # Llegir
+dd    <- read.csv("demographic.csv") # Llegir
 summary(dd)
 ```
 

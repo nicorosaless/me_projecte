@@ -1,0 +1,64 @@
+---
+title: "Data_preprocessing"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r echo = FALSE, message=FALSE}
+# Carregar llibreries
+library(car)
+library(tables)   # tabular
+library(emmeans)  # emmeans
+library(car)      # residualPlot
+library(RcmdrMisc)#
+library(multcomp) # cld 
+library(dplyr)
+```
+
+```{r echo = FALSE, message=FALSE}
+dd    <- read.csv("C:/Users/javil/OneDrive/Documentos/UPC/2n/ME/Proyecto/demographic/demographic.csv") # Llegir
+summary(dd)
+```
+
+
+```{r echo = FALSE, message=FALSE}
+# Correlaciones para numéricas
+num_vars <- dd %>% select_if(is.numeric)
+correlations <- sapply(num_vars, function(x) cor(x, dd$INDFMPIR, use = "pairwise.complete.obs"))
+sort(correlations, decreasing = TRUE)
+
+# Para categóricas: prueba de ANOVA o Chi-square
+anova_result <- aov(INDFMPIR ~ DMDEDUC2, data = dd)
+summary(anova_result)
+# Instalar y cargar librerías si hace falta
+install.packages(c("dplyr", "ggplot2", "tidyr"))
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Calcular correlaciones con la variable objetivo INDFMPIR
+corr_df <- dd %>%
+  select_if(is.numeric) %>%
+  summarise(across(everything(),
+                   ~ cor(.x, dd$INDFMPIR, use = "pairwise.complete.obs"))) %>%
+  pivot_longer(cols = everything(),
+               names_to = "Variable",
+               values_to = "Correlation")
+
+# Ordenar por magnitud
+corr_df <- corr_df %>%
+  arrange(desc(abs(Correlation)))
+
+# Gráfico de barras
+ggplot(corr_df, aes(x = reorder(Variable, Correlation), y = Correlation, fill = Correlation)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+  labs(title = "Correlation with INDFMPIR",
+       x = "Variable",
+       y = "Correlation") +
+  theme_minimal()
+
+```

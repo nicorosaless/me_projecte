@@ -1,0 +1,48 @@
+Variable Name,Variable Description,Data File Name,Data File Description,Begin Year,End Year,Component,Use Constraints
+DBD100,How often {do you/does SP} add ordinary salt to {your/his/her/SP's} food at the table? Would you say . . .,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DBQ095Z,What type of salt {do you/does SP} usually add to {your/his/her/SP's} food at the table? Would you say . . .,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1_300,Was the amount of food that {you/NAME} ate yesterday much more than usual, usual, or much less than usual?,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1_320Z,Total plain water drank yesterday - including plain tap water, water from a drinking fountain, water from a water cooler, bottled water, and spring water.,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1_330Z,Total tap water drank yesterday - including filtered tap water and water from a drinking fountain.,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1BWATZ,Total bottled water drank yesterday (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1DAY,Intake day of the week,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1DBIH,Number of days between intake day and the day of family questionnaire administered in the household.,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1DRSTZ,Dietary recall status,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1EXMER,Interviewer ID code,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1HELPD,Who helped in responding for this interview,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1LANG,The respondent spoke mostly:,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1MNRSP,Who was the main respondent for this interview?,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1SKY,What type of salt was it? (Was it ordinary or seasoned salt, lite salt, or a salt substitute?),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1STY,Did {you/SP} add any salt to {your/her/his} food at the table yesterday? Salt includes ordinary or seasoned salt, lite salt, or a salt substitute.,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TACAR,Alpha-carotene (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TALCO,Alcohol (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TATOA,Added alpha-tocopherol (Vitamin E) (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TATOC,Vitamin E as alpha-tocopherol (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TB12A,Added vitamin B12 (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TBCAR,Beta-carotene (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCAFF,Caffeine (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCALC,Calcium (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCARB,Carbohydrate (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCHL,Total choline (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCHOL,Cholesterol (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCOPP,Copper (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TCRYP,Beta-cryptoxanthin (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TFA,Folic acid (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TFDFE,Folate as dietary folate equivalents (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TFF,Food folate (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TFIBE,Dietary fiber (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TFOLA,Total folate (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TIRON,Iron (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TKCAL,Energy (kcal),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TLYCO,Lycopene (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TLZ,Lutein + zeaxanthin (mcg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TM161,MFA 16:1 (Hexadecenoic) (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TM181,MFA 18:1 (Octadecenoic) (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TM201,MFA 20:1 (Eicosenoic) (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TM221,MFA 22:1 (Docosenoic) (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TMAGN,Magnesium (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TMFAT,Total monounsaturated fatty acids (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TMOIS,Moisture (gm),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TNIAC,Niacin (mg),DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+DR1TNUMF,Total number of foods/beverages reported in the individual foods file,DR1TOT_H,Dietary Interview - Total Nutrient Intakes, First Day,2013,2014,Dietary,None
+...

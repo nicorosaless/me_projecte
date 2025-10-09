@@ -38,109 +38,6 @@ summary(dd)
     'DMDHRBR4',          # país de nacimiento del cabeza, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
     'DMDHREDU',          # educación del cabeza, factor 1:Less than 9th grade 2:9-11th grade (Includes 12th grade with no diploma) 3:High school graduate/GED or equivalent 4:Some college or AA degree 5:College graduate or above 7:refused 9:Don't know
     'DMDHRMAR'           # estado civil del cabeza, factor 1:Married 2:Widowed 3:Divorced 4:Separated 5:Never married 6:Living with partner 77:Refused 99:Don't know
-
-
-#Escogemos las variables
-```{r echo = FALSE, message=FALSE}
-selected_features <- c(
-  'RIAGENDR', 'RIDAGEYR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
-  'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
-  'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
-  'DMDHRMAR', 'INDFMPIR' 
-)
-dd <- dd[, colnames(dd) %in% selected_features]
-summary(dd)
-```
-#juntamos missing values, refused y dont know en una sola categoria 0
-```{r echo = FALSE, message=FALSE}
-
-# DMDCITZN: valores existentes [1,2, NA, 7,9]
-dd$DMDCITZN <- as.numeric(dd$DMDCITZN)
-dd$DMDCITZN[dd$DMDCITZN %in% c(7,9) | is.na(dd$DMDCITZN)] <- 0
-
-# DMDHRBR4: valores existentes [1,2, NA,77]
-dd$DMDHRBR4 <- as.numeric(dd$DMDHRBR4)
-dd$DMDHRBR4[dd$DMDHRBR4 %in% c(77) | is.na(dd$DMDHRBR4)] <- 0
-
-# DMDHREDU: valores existentes [1,2,3,4,5,NA,7,9]
-dd$DMDHREDU <- as.numeric(dd$DMDHREDU)
-dd$DMDHREDU[dd$DMDHREDU %in% c(7,9) | is.na(dd$DMDHREDU)] <- 0 
-
-# DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
-dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
-dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0  
-summary(dd)
-```
-
-#variables como factores para tratarlas como es debido
-```{r echo = FALSE, message=FALSE}
-factor_vars <- c(
-  'RIAGENDR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN', 
-  'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
-  'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
-  'DMDHRMAR'
-)
-
-# Convertir a factor
-dd[factor_vars] <- lapply(dd[factor_vars], as.factor)
-summary(dd)
-```
-#vemos distribucion target variable
-```{r echo = FALSE, message=FALSE}
-hist(
-  dd$INDFMPIR[!is.na(dd$INDFMPIR)],
-  main = "Distribución de INDFMPIR (sin NA)",
-  xlab = "INDFMPIR",
-  ylab = "Frecuencia",
-  col = "lightblue",
-  border = "white"
-)
-```
-#imputamos los na's por la media porque no sigue distribucion normal
-```{r echo = FALSE, message=FALSE}
-dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
-
-summary(dd)
-```
-
-```{r echo = FALSE, message=FALSE}
-library(RcmdrMisc)
-response_var <- "INDFMPIR"
-str(dd$INDFMPIR)
-
-```
-
-#probamos modelo lineal con funcion gaussiana como prueba
-
-```{r echo=FALSE, message=FALSE}
-
-mlgz <- glm(INDFMPIR ~ ., dd, family = gaussian(link=identity))
-summary(mlgz)
-```
-#vemos la relevancia de las variables
-```{r echo=FALSE, message=FALSE}
-Anova(mlgz, test.statistic = 'LR')
-```
-#validacion numerica
-```{r echo=FALSE, message=FALSE}
-pearson_chisq <- sum(residuals(mlgz, type = "pearson")^2)
-df_resid <- df.residual(mlgz)
-pearson_ratio <- pearson_chisq / df_resid
-pearson_ratio
-
-```
-
-```{r echo = FALSE, message=FALSE}
-
-mlgz2 <- glm(INDFMPIR ~ . - RIAGENDR - DMDBORN4 - DMDFMSIZ,
-             data = dd,
-             family = gaussian(link = "identity"))
-summary(mlgz2)
-
-Anova(mlgz2, test.statistic = 'LR')
-```
-
-
 ```{r echo = FALSE, message=FALSE}
 # Correlaciones para numéricas
 num_vars <- dd %>% select_if(is.numeric)
@@ -178,5 +75,149 @@ ggplot(corr_df, aes(x = reorder(Variable, Correlation), y = Correlation, fill = 
        x = "Variable",
        y = "Correlation") +
   theme_minimal()
+
+```
+```{r echo = FALSE, message=FALSE}
+selected_features <- c(
+  'RIAGENDR', 'RIDAGEYR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
+  'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
+  'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
+  'DMDHRMAR', 'INDFMPIR' 
+)
+dd <- dd[, colnames(dd) %in% selected_features]
+summary(dd)
+```
+
+```{r echo = FALSE, message=FALSE}
+
+
+dd$DMDBORN4 <- as.numeric(dd$DMDBORN4)
+dd$DMDBORN4[dd$DMDBORN4 %in% c(77,99) | is.na(dd$DMDBORN4)] <- 0
+# DMDCITZN: valores existentes [1,2, NA, 7,9]
+dd$DMDCITZN <- as.numeric(dd$DMDCITZN)
+dd$DMDCITZN[dd$DMDCITZN %in% c(7,9) | is.na(dd$DMDCITZN)] <- 0
+
+# DMDHRBR4: valores existentes [1,2, NA,77]
+dd$DMDHRBR4 <- as.numeric(dd$DMDHRBR4)
+dd$DMDHRBR4[dd$DMDHRBR4 %in% c(77) | is.na(dd$DMDHRBR4)] <- 0
+
+# DMDHREDU: valores existentes [1,2,3,4,5,NA,7,9]
+dd$DMDHREDU <- as.numeric(dd$DMDHREDU)
+dd$DMDHREDU[dd$DMDHREDU %in% c(7,9) | is.na(dd$DMDHREDU)] <- 0 
+
+# DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
+dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
+dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0  
+summary(dd)
+```
+```{r echo = FALSE, message=FALSE}
+factor_vars <- c(
+  'RIAGENDR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN', 
+  'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
+  'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
+  'DMDHRMAR'
+)
+
+# Convertir a factor
+dd[factor_vars] <- lapply(dd[factor_vars], as.factor)
+summary(dd)
+```
+#there are missing values in target variable
+
+```{r echo = FALSE, message=FALSE}
+hist(
+  dd$INDFMPIR[!is.na(dd$INDFMPIR)],
+  main = "Distribución de INDFMPIR (sin NA)",
+  xlab = "INDFMPIR",
+  ylab = "Frecuencia",
+  col = "lightblue",
+  border = "white"
+)
+```
+
+#the distribution is not normal, as the values are a small percentage of the data we could impute by the median
+```{r echo = FALSE, message=FALSE}
+dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
+
+summary(dd)
+
+dd[dd$INDFMPIR <= 0, ]
+dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
+dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
+#there are values that are 0 in the codification, in the NHANES documentation 0 is said to be as missing values, or could not be determined
+#we will assume it as missing data
+```
+
+```{r echo = FALSE, message=FALSE}
+library(RcmdrMisc)
+response_var <- "INDFMPIR"
+str(dd$INDFMPIR)
+
+par(mfrow=c(1,2))
+with(dd, plotMeans(INDFMPIR, SIALANG, SIAINTRP, error.bars="conf.int", level=0.95, connect=TRUE))
+with(dd, plotMeans(INDFMPIR, SIAINTRP, SIALANG, error.bars="conf.int", level=0.95, connect=TRUE))
+```
+
+#gaussian and identity link is not a good option but we do it to test
+```{r echo=FALSE, message=FALSE}
+
+mlgz <- glm(INDFMPIR ~ ., dd, family = gaussian(link=identity))
+summary(mlgz)
+
+Anova(mlgz, test.statistic = 'LR')
+
+deviance_residual <- deviance(mlgz)       # devianza residual del modelo
+df_residual <- df.residual(mlgz) 
+
+#deviance not good
+pearson_chisq <- sum(residuals(mlgz, type = "pearson")^2)
+df_resid <- df.residual(mlgz) 
+
+pearson_ratio <- pearson_chisq / df_resid
+pearson_ratio
+
+
+```
+
+```{r echo=FALSE, message=FALSE}
+residualPlots(mlgz, layout = c(2,1), ask = FALSE, tests = FALSE)
+```
+#we can see the line of the model is not good at all, its what we expected
+
+```{r echo=FALSE, message=FALSE}
+influencePlot(model = mlgz)
+```
+
+#330 is an important outlier
+```{r echo=FALSE, message=FALSE}
+dd[330, ]
+dd[1868, ]
+dd[213, ]
+
+```
+#the outliers seem to be relevant 
+
+#lets change the family and link function
+```{r echo = FALSE, message=FALSE}
+
+mlgz2 <- glm(INDFMPIR ~ ., dd, family = gaussian(link=log))
+summary(mlgz2)
+
+Anova(mlgz2, test.statistic = 'LR')
+
+residualPlots(mlgz2, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+```
+#improves but not much
+
+
+```{r echo = FALSE, message=FALSE}
+
+mlgz3 <- glm(INDFMPIR ~ ., dd, family = Gamma(link=log))
+summary(mlgz3)
+
+Anova(mlgz3, test.statistic = 'LR')
+
+residualPlots(mlgz3, layout = c(2,1), ask = FALSE, tests = FALSE)
 
 ```

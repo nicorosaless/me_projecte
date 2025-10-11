@@ -79,10 +79,10 @@ ggplot(corr_df, aes(x = reorder(Variable, Correlation), y = Correlation, fill = 
 ```
 ```{r echo = FALSE, message=FALSE}
 selected_features <- c(
-  'RIAGENDR', 'RIDAGEYR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
+  'RIAGENDR', 'RIDAGEYR', 'DMDEDUC2', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
   'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
   'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
-  'DMDHRMAR', 'INDFMPIR' 
+  'DMDHRMAR', 'WTINT2YR', 'INDFMPIR' 
 )
 dd <- dd[, colnames(dd) %in% selected_features]
 summary(dd)
@@ -97,6 +97,9 @@ dd$DMDBORN4[dd$DMDBORN4 %in% c(77,99) | is.na(dd$DMDBORN4)] <- 0
 dd$DMDCITZN <- as.numeric(dd$DMDCITZN)
 dd$DMDCITZN[dd$DMDCITZN %in% c(7,9) | is.na(dd$DMDCITZN)] <- 0
 
+dd$DMDEDUC2 <- as.numeric(dd$DMDEDUC2)
+dd$DMDEDUC2[dd$DMDEDUC2 %in% c(7,9) | is.na(dd$DMDEDUC2)] <- 0
+
 # DMDHRBR4: valores existentes [1,2, NA,77]
 dd$DMDHRBR4 <- as.numeric(dd$DMDHRBR4)
 dd$DMDHRBR4[dd$DMDHRBR4 %in% c(77) | is.na(dd$DMDHRBR4)] <- 0
@@ -107,12 +110,13 @@ dd$DMDHREDU[dd$DMDHREDU %in% c(7,9) | is.na(dd$DMDHREDU)] <- 0
 
 # DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
 dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
-dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0  
+dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0 
+
 summary(dd)
 ```
 ```{r echo = FALSE, message=FALSE}
 factor_vars <- c(
-  'RIAGENDR', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN', 
+  'RIAGENDR', 'RIDRETH3','DMDEDUC2', 'DMDBORN4', 'DMDCITZN', 
   'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
   'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
   'DMDHRMAR'
@@ -149,15 +153,68 @@ dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
 ```
 
 ```{r echo = FALSE, message=FALSE}
-library(RcmdrMisc)
-response_var <- "INDFMPIR"
-str(dd$INDFMPIR)
 
 par(mfrow=c(1,2))
 with(dd, plotMeans(INDFMPIR, SIALANG, SIAINTRP, error.bars="conf.int", level=0.95, connect=TRUE))
 with(dd, plotMeans(INDFMPIR, SIAINTRP, SIALANG, error.bars="conf.int", level=0.95, connect=TRUE))
-```
 
+library(ggplot2)
+
+ggplot(dd, aes(x = DMDEDUC2, y = INDFMPIR, fill = RIAGENDR)) +
+  geom_boxplot() +
+  labs(title = "Interacción: Educación × Género sobre INDFMPIR",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+#seems to be a little interaction
+
+ggplot(dd, aes(x = DMDEDUC2, y = INDFMPIR, color = RIAGENDR)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Interacción: Edad × Género sobre INDFMPIR",
+       x = "Edad",
+       y = "INDFMPIR",
+       color = "Género") +
+  theme_minimal()
+#does not seem to be interaction
+
+ggplot(dd, aes(x = DMDBORN4, y = INDFMPIR, fill = SIALANG)) +
+  geom_boxplot() +
+  labs(title = "Interacción: born x language",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+#not much
+
+ggplot(dd, aes(x = DMDEDUC2, y = INDFMPIR, fill = SIALANG)) +
+  geom_boxplot() +
+  labs(title = "Interacción: education x language",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+
+ggplot(dd, aes(x = DMDBORN4, y = INDFMPIR, fill = DMDCITZN)) +
+  geom_boxplot() +
+  labs(title = "Interacción: born x citzn",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+#not much
+ggplot(dd, aes(x = SIAINTRP, y = INDFMPIR, fill = DMDCITZN)) +
+  geom_boxplot() +
+  labs(title = "Interacción: intrp x citzn",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+#not much
+ggplot(dd, aes(x = DMDFMSIZ, y = INDFMPIR, fill = DMDHHSZA)) +
+  geom_boxplot() +
+  labs(title = "Interacción: family size x number of 5 yold children",
+       x = "Nivel educativo",
+       y = "INDFMPIR") +
+  theme_minimal()
+#we have tried modified models with each interaction, the only relevaant for model that we should include is dmdborn4 x sialang
+```
 #gaussian and identity link is not a good option but we do it to test
 ```{r echo=FALSE, message=FALSE}
 
@@ -213,11 +270,18 @@ residualPlots(mlgz2, layout = c(2,1), ask = FALSE, tests = FALSE)
 
 ```{r echo = FALSE, message=FALSE}
 
-mlgz3 <- glm(INDFMPIR ~ ., dd, family = Gamma(link=log))
+mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG, dd, family = Gamma(link=log))
 summary(mlgz3)
 
 Anova(mlgz3, test.statistic = 'LR')
 
 residualPlots(mlgz3, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+vif(mlgz3) #does not seem to be a problem
+
+```
+
+
+```{r echo = FALSE, message=FALSE}
 
 ```

@@ -47,34 +47,39 @@ sort(correlations, decreasing = TRUE)
 # Para categóricas: prueba de ANOVA o Chi-square
 anova_result <- aov(INDFMPIR ~ DMDEDUC2, data = dd)
 summary(anova_result)
-# Instalar y cargar librerías si hace falta
-install.packages(c("dplyr", "ggplot2", "tidyr"))
+
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(tibble)  # <-- AÑADE ESTA LÍNEA
 
-# Calcular correlaciones con la variable objetivo INDFMPIR
-corr_df <- dd %>%
-  select_if(is.numeric) %>%
-  summarise(across(everything(),
-                   ~ cor(.x, dd$INDFMPIR, use = "pairwise.complete.obs"))) %>%
-  pivot_longer(cols = everything(),
-               names_to = "Variable",
-               values_to = "Correlation")
 
-# Ordenar por magnitud
-corr_df <- corr_df %>%
-  arrange(desc(abs(Correlation)))
+# Matriz de correlaciones solo con INDFMPIR
+cor_matrix <- dd %>%
+	select(where(~is.numeric(.x) && !inherits(.x, c("Period", "hms", "difftime")))) %>%
+	cor(use = "pairwise.complete.obs")
+
+# Extraer solo la fila/columna de INDFMPIR
+cor_indfmpir <- cor_matrix["INDFMPIR", ] %>%
+	as.data.frame() %>%
+	rownames_to_column("variable") %>%
+	rename(correlation = 2) %>%
+	filter(variable != "INDFMPIR") %>%  # Quitar la correlación consigo misma
+	arrange(desc(abs(correlation)))  # Ordenar por correlación absoluta
+
+# Ver tabla
+print(cor_indfmpir)
 
 # Gráfico de barras
-ggplot(corr_df, aes(x = reorder(Variable, Correlation), y = Correlation, fill = Correlation)) +
-  geom_col() +
-  coord_flip() +
-  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
-  labs(title = "Correlation with INDFMPIR",
-       x = "Variable",
-       y = "Correlation") +
-  theme_minimal()
+ggplot(cor_indfmpir, aes(x = reorder(variable, correlation), y = correlation, fill = correlation)) +
+	geom_col() +
+	geom_text(aes(label = sprintf("%.2f", correlation)), hjust = 1.2, size = 3) +
+	coord_flip() +
+	scale_fill_gradient2(low = "#d7191c", mid = "#ffffbf", high = "#2c7bb6", midpoint = 0) +
+	theme_minimal() +
+	labs(title = "Correlaciones con INDFMPIR",
+	     x = "Variable",
+	     y = "Correlación")
 
 ```
 ```{r echo = FALSE, message=FALSE}
@@ -382,6 +387,7 @@ roc(dd_binary$DMQMILIZ, pred)
 
 
 #area: 0.912 
+
 
 
 ```

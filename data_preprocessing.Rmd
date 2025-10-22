@@ -82,7 +82,7 @@ selected_features <- c(
   'RIAGENDR', 'RIDAGEYR', 'DMDEDUC2', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
   'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
   'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
-  'DMDHRMAR', 'WTINT2YR', 'INDFMPIR' 
+  'DMDHRMAR', 'WTINT2YR','DMQMILIZ', 'INDFMPIR' 
 )
 dd <- dd[, colnames(dd) %in% selected_features]
 summary(dd)
@@ -108,6 +108,9 @@ dd$DMDHRBR4[dd$DMDHRBR4 %in% c(77) | is.na(dd$DMDHRBR4)] <- 0
 dd$DMDHREDU <- as.numeric(dd$DMDHREDU)
 dd$DMDHREDU[dd$DMDHREDU %in% c(7,9) | is.na(dd$DMDHREDU)] <- 0 
 
+dd$DMQMILIZ <- as.numeric(dd$DMQMILIZ)
+dd$DMQMILIZ[dd$DMQMILIZ %in% c(7,9) | is.na(dd$DMQMILIZ)] <- 0 
+
 # DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
 dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
 dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0 
@@ -119,7 +122,7 @@ factor_vars <- c(
   'RIAGENDR', 'RIDRETH3','DMDEDUC2', 'DMDBORN4', 'DMDCITZN', 
   'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
   'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
-  'DMDHRMAR'
+  'DMDHRMAR', 'DMQMILIZ'
 )
 
 # Convertir a factor
@@ -129,6 +132,54 @@ summary(dd)
 #there are missing values in target variable
 
 ```{r echo = FALSE, message=FALSE}
+par(mfrow=c(4,5), mar=c(3,3,3,1)) 
+colors <- c(2,3)                 
+group_var <- "RIAGENDR"   
+
+vars <- setdiff(selected_features, "INDFMPIR")
+
+vars <- setdiff(vars, group_var)
+
+group_levels <- unique(na.omit(dd[[group_var]]))
+if(length(group_levels) == 2){
+  colors <- c("tomato","seagreen")
+} else {
+  colors <- grDevices::rainbow(length(group_levels))
+}
+
+# -------------- Preparar layout --------------
+# dimensiones automáticas para que no se corte: ncol por defecto 4
+n_vars <- length(vars)
+ncol_plot <- 4
+nrow_plot <- ceiling(n_vars / ncol_plot)
+oldpar <- par(no.readonly = TRUE)
+par(mfrow = c(nrow_plot, ncol_plot), mar = c(3,3,3,1), oma = c(0,0,2,0))
+
+# Boxplot if numeric and barplot if categorical
+for (v in vars) {
+  # si variable NO es factor (numérica) -> boxplot por grupo (horizontal)
+  if (is.numeric(dd[[v]])) {
+    # Convertir grupo a factor para orden consistente en boxplot
+    grp <- factor(dd[[group_var]])
+    form <- as.formula(paste(v, "~", group_var))
+    # boxplot con colores por nivel del grupo
+    boxplot(form, data = dd, main = v, col = colors, horizontal = TRUE, outline = TRUE,
+            xlab = "", ylab = "", las = 1)
+  } else {
+    # variable categórica -> barplot de proporciones por columna (similar ejemplo)
+    # tabla de contingencia: rows = group, cols = categories of v
+    tab <- table(dd[[group_var]], dd[[v]], useNA = "ifany")
+    # prop.table por columnas (proporción dentro de cada categoría de v)
+    prop_tab <- prop.table(tab, margin = 2)
+    # barplot (stacked) con leyenda
+    barplot(prop_tab, main = v, col = colors, beside = FALSE, las = 1)
+    # añadir leyenda si hay espacio
+    if (length(group_levels) <= 6) {
+      legend("topright", legend = levels(factor(dd[[group_var]])), fill = colors, cex = 0.8, bty = "n")
+    }
+  }
+}
+
 hist(
   dd$INDFMPIR[!is.na(dd$INDFMPIR)],
   main = "Distribución de INDFMPIR (sin NA)",
@@ -218,7 +269,7 @@ ggplot(dd, aes(x = DMDFMSIZ, y = INDFMPIR, fill = DMDHHSZA)) +
 #gaussian and identity link is not a good option but we do it to test
 ```{r echo=FALSE, message=FALSE}
 
-mlgz <- glm(INDFMPIR ~ ., dd, family = gaussian(link=identity))
+mlgz <- glm(INDFMPIR ~ . - DMQMILIZ, dd, family = gaussian(link=identity))
 summary(mlgz)
 
 Anova(mlgz, test.statistic = 'LR')
@@ -257,7 +308,7 @@ dd[213, ]
 #lets change the family and link function
 ```{r echo = FALSE, message=FALSE}
 
-mlgz2 <- glm(INDFMPIR ~ ., dd, family = gaussian(link=log))
+mlgz2 <- glm(INDFMPIR ~ .+ DMDEDUC2*SIALANG - DMQMILIZ, dd, family = gaussian(link=log))
 summary(mlgz2)
 
 Anova(mlgz2, test.statistic = 'LR')
@@ -270,18 +321,70 @@ residualPlots(mlgz2, layout = c(2,1), ask = FALSE, tests = FALSE)
 
 ```{r echo = FALSE, message=FALSE}
 
-mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG, dd, family = Gamma(link=log))
+mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG - DMQMILIZ, dd, family = Gamma(link=log))
 summary(mlgz3)
 
 Anova(mlgz3, test.statistic = 'LR')
 
 residualPlots(mlgz3, layout = c(2,1), ask = FALSE, tests = FALSE)
 
-vif(mlgz3) #does not seem to be a problem
+vif(mlgz3) 
+
+
 
 ```
 
 
 ```{r echo = FALSE, message=FALSE}
+influencePlot(model=mlgz3)
+```
+
+
+
+```{r echo = FALSE, message=FALSE}
+# it has so much missing values, but we cant work on the rows without NA
+dd_binary <- dd %>%
+  filter(!is.na(DMQMILIZ), DMQMILIZ != 0) %>%   # elimina NA y 0
+  mutate(DMQMILIZ = ifelse(DMQMILIZ == 2, 0, 1))  # convierte 2→0, deja 1→1 , originalmente 1-yes 2-No
+summary(dd_binary)
+
+table(dd_binary$DMQMILIZ)
+
+summary(mb <- glm(DMQMILIZ ~ ., dd_binary, family=binomial(link='logit')))
+#we cann clearly see a case of quasi-separation on this model, solutions --> reduce complexity or use penalised regression
+
+Anova(mb, test.statistic = 'LR')
+#lets remove columns that have p-value insignificant
+
+summary(mb2 <- glm(DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDBORN4 + DMDCITZN + DMDEDUC2 + SIALANG + DMDHHSZA + WTINT2YR, dd_binary, family=binomial(link='logit')))
+
+Anova(mb2, test.statistic = 'LR')
+
+residualPlots(mb2, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+#lets try penalised firth regression to solve this problem
+
+library(logistf)
+install.packages("pROC")
+library(pROC)
+
+mb2_firth <- logistf(
+  DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDBORN4 +
+    DMDCITZN + DMDEDUC2 + SIALANG + DMDHHSZA + WTINT2YR,
+  data = dd_binary
+)
+summary(mb2_firth)
+
+
+pred <- predict(mb2_firth, type = "response")
+roc(dd_binary$DMQMILIZ, pred)
+
+
+
+#area: 0.912 
+
 
 ```
+
+
+

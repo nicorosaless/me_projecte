@@ -1,0 +1,14 @@
+Figuras y tablas recomendadas para el documento:
+
+1) trends: timeseries/output/poverty_ts_by_group.png — Series 1959–2024 por grupo con sombreado de recesiones.
+2) transform: timeseries/output/all_original_vs_log.png — Serie original vs. log-transformada (All).
+3) id: timeseries/output/all_ACF_PACF_d1log.png — ACF/PACF de la serie log‑diferenciada (identificación).
+4) resid: timeseries/output/all_residual_diagnostics.png — Panel de residuos (escala, QQ, histograma).
+5) indep: timeseries/output/all_tsdiag.png — Independencia (tsdiag).
+6) check: timeseries/output/all_checkresiduals.png — Comprobación consolidada de residuos.
+7) forecast: timeseries/output/all_forecast.png — Predicción 10 años con IC 95%.
+8) bars: timeseries/output/impact_bars.png — Barras por crisis con incremento (pp) por grupo.
+9) heatmap: timeseries/output/impact_heatmap.png — Heatmap de incrementos (pp) grupo×crisis.
+10) impact_table: timeseries/output/recession_impact_summary.csv — Tabla detallada (baseline, pico, año pico, delta_pp).
+11) impact_matrix: timeseries/output/impact_matrix.csv — Matriz grupo×crisis con delta_pp.
+12) mapping: timeseries/output/mapping_summary.csv — Resumen de armonización (etiquetas originales por años).

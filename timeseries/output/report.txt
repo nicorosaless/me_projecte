@@ -1,0 +1,71 @@
+Executive Summary
+
+This analysis examines U.S. poverty rates (CPS ASEC, 1959–2024) across key demographic groups to assess which groups were hit hardest during the Reagan Recession (1980–1983), the Dot‑com Crash (2001–2003), the Great Recession (2008–2010), and COVID‑19 (2020–2021). Using the class ARIMA workflow on the All Races series (log transform, d=1), we benchmark overall dynamics and quantify spikes by comparing recession peaks to pre‑window baselines.
+
+Dataset Selection
+
+- Source: CPS ASEC poverty (timeseries/data/cps_asec_poverty_1959_2024.csv)
+- Variables used: year (time), poverty rate (PCTPOV), demographic categories (RACE_NAME)
+- Harmonized groups: All, White, Black, Hispanic, Asian (mapped across category changes over time)
+- US totals only (us == 1). Cleaned file saved: timeseries/output/poverty_harmonized.csv
+
+Research Questions
+
+Which demographic groups were hit hardest by each recession? We define 'hit hardest' as the largest percentage‑point (pp) increase from a 3‑year baseline prior to the recession window to the peak within the window. Windows:
+- Reagan: 1980–1983
+- Dot‑com: 2001–2003
+- Great Recession: 2008–2010
+- COVID‑19: 2020–2021
+
+Time Series Modeling
+
+- Series modeled (annual): All Races poverty rate (PCTPOV)
+- Transform: log; Differencing: d = 1 (to remove trend)
+- Candidate models fit: ARIMA(3,1,0) and ARIMA(2,1,0)
+- AICs: ARIMA(3,1,0) = -204.04; ARIMA(2,1,0) = -205.87. Chosen by lower AIC.
+- Significant coefficients (|coef/se|>2):
+  ARIMA(3,1,0): ar1 (3.79)
+  ARIMA(2,1,0): ar1 (3.78)
+
+Recommended figures:
+- timeseries/output/poverty_ts_by_group.png — Trends by group with recession shading
+- timeseries/output/all_ACF_PACF_d1log.png — ACF/PACF of differenced logs (model identification)
+- timeseries/output/all_residual_diagnostics.png — Residual distribution and scale checks
+- timeseries/output/all_tsdiag.png — Independence diagnostics (ACF of residuals, Ljung‑Box)
+- timeseries/output/all_forecast.png — Forecast with 95% intervals on original scale
+
+Results and Testing
+
+- Recession impact (top three groups by pp increase, baseline = prior 3 years):
+
+Reagan — top 3 poverty spikes (pp increase vs pre-window baseline):
+  Hispanic: +8.0 pp (peak 29.9% in 1982)
+  Black: +4.7 pp (peak 35.7% in 1983)
+  All: +3.6 pp (peak 15.2% in 1983)
+
+DotCom — top 3 poverty spikes (pp increase vs pre-window baseline):
+  Asian: +0.8 pp (peak 11.8% in 2003)
+  All: +0.5 pp (peak 12.5% in 2003)
+  Black: +0.3 pp (peak 24.4% in 2003)
+
+GreatRec — top 3 poverty spikes (pp increase vs pre-window baseline):
+  Hispanic: +5.2 pp (peak 26.5% in 2010)
+  Black: +2.8 pp (peak 27.4% in 2010)
+  All: +2.6 pp (peak 15.1% in 2010)
+
+COVID19 — top 3 poverty spikes (pp increase vs pre-window baseline):
+  Asian: +0.2 pp (peak 9.3% in 2021)
+  White: +0.2 pp (peak 8.2% in 2020)
+  All: +0.1 pp (peak 11.6% in 2021)
+
+- Full table: timeseries/output/recession_impact_summary.csv
+- Residual checks: see all_residual_diagnostics.png and all_tsdiag.png; consolidated check via checkresiduals(mod_def) was run.
+
+Conclusions
+
+- COVID19: Asian experienced the largest spike (+0.2 pp, peak 9.3% in 2021).
+- DotCom: Asian experienced the largest spike (+0.8 pp, peak 11.8% in 2003).
+- GreatRec: Hispanic experienced the largest spike (+5.2 pp, peak 26.5% in 2010).
+- Reagan: Hispanic experienced the largest spike (+8.0 pp, peak 29.9% in 1982).
+
+Use the recommended figures above to illustrate overall trends, model identification/validation, and the forecast, and cite the CSV summary for exact values per group/window.

@@ -1,0 +1,50 @@
+All Races ARIMA model comparison (log scale, d=1)
+
+Model 1: ARIMA(3,1,0)
+
+Call:
+arima(x = lng_all, order = c(3, 1, 0))
+
+Coefficients:
+         ar1      ar2     ar3
+      0.4661  -0.0327  0.0501
+s.e.  0.1231   0.1356  0.1224
+
+sigma^2 estimated as 0.002234:  log likelihood = 106.02,  aic = -204.04
+
+Ratios: 
+ ar1  ar2  ar3 
+3.79 0.24 0.41 
+
+AIC: -204.0408 
+
+Model 2: ARIMA(2,1,0)
+
+Call:
+arima(x = lng_all, order = c(2, 1, 0))
+
+Coefficients:
+         ar1      ar2
+      0.4657  -0.0092
+s.e.  0.1232   0.1230
+
+sigma^2 estimated as 0.00224:  log likelihood = 105.94,  aic = -205.87
+
+Ratios: 
+ ar1  ar2 
+3.78 0.08 
+
+AIC: -205.8738 
+
+Chosen model (by AIC):
+
+
+Call:
+arima(x = lng_all, order = c(2, 1, 0))
+
+Coefficients:
+         ar1      ar2
+      0.4657  -0.0092
+s.e.  0.1232   0.1230
+
+sigma^2 estimated as 0.00224:  log likelihood = 105.94,  aic = -205.87

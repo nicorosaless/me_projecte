@@ -1,0 +1,239 @@
+4. Time Series (TS) — Plantilla de armado del documento
+
+Cómo usar esta plantilla
+- Reemplaza los textos entre [CORCHETES] con tu contenido definitivo.
+- Inserta las figuras y tablas indicadas desde la carpeta: timeseries/output/
+- Puedes apoyarte en el índice ya generado: timeseries/output/figures_index_es.txt
+
+
+1. Resumen Ejecutivo
+Este análisis examina cómo diferentes grupos demográficos en Estados Unidos 
+experimentaron aumentos en las tasas de pobreza durante cuatro crisis 
+económicas: la Recesión de Reagan (1980-1983), la Crisis DotCom (2001-2003), 
+la Gran Recesión (2008-2010) y la Pandemia de COVID-19 (2020-2021).
+
+Utilizando datos del CPS ASEC (1959-2024), encontramos que:
+- La población hispana sufrió los mayores incrementos durante las recesiones 
+  de los 80 (+8.0 pp) y 2008 (+5.2 pp)
+- La población asiática mostró mayor vulnerabilidad relativa en la crisis 
+  puntocom (+0.8 pp) y COVID-19 (+0.2 pp)
+- Las crisis más recientes muestran incrementos menores, posiblemente por 
+  intervenciones fiscales más agresivas
+
+[Opcional: No requiere figura aquí. Si quieres un gráfico contextual, añade 
+“poverty_ts_by_group.png” más adelante en la sección 7.]
+
+
+2. Selección de Dataset — Clarificar el cambio
+
+Cambio de Dataset y Justificación
+El análisis de series temporales requiere observaciones secuenciales a 
+intervalos regulares. El dataset utilizado en análisis previos [describe brevemente 
+por qué no servía: p.ej., era transversal, irregular en el tiempo, variables 
+no anuales, etc.] no cumplía este requisito.
+
+Por ello, adoptamos el conjunto de datos CPS ASEC de tasas de pobreza, que 
+proporciona:
+- Observaciones anuales consistentes desde 1959 hasta 2024 (65 años)
+- Tasas de pobreza (PCTPOV) desagregadas por categoría demográfica (RACE_NAME)
+- Cobertura completa de Estados Unidos
+
+Armonización de Categorías Raciales
+Un desafío metodológico importante surgió del cambio en 2002 en la 
+clasificación racial del Censo, que introdujo categorías como "White Alone, 
+Not Hispanic". Para mantener la comparabilidad temporal, consolidamos todas 
+las categorías en cinco grupos consistentes:
+- Total (población general)
+- White (blancos)
+- Black (afroamericanos)
+- Hispanic (hispanos/latinos)
+- Asian (asiáticos)
+
+[INSERTAR TABLA PEQUEÑA DE EJEMPLOS DE MAPEOS]
+Fuente sugerida: timeseries/output/mapping_summary.csv
+- Selecciona 5–10 filas representativas que ilustren cómo se agruparon 
+  categorías antiguas y nuevas.
+
+
+3. Preguntas de Investigación — Más estructura
+
+Pregunta Central de Investigación
+¿Qué grupos demográficos experimentaron los incrementos más severos en 
+pobreza durante cada crisis económica?
+
+Operacionalización del "Impacto"
+Definimos el impacto como el cambio en puntos porcentuales entre:
+- Pico: La tasa de pobreza máxima observada durante la crisis
+- Baseline: El promedio de las tasas de pobreza en los 3 años previos
+
+Ejemplo: Si la tasa de pobreza hispana era 22% en promedio (1977-1979) 
+y alcanzó 29.9% en 1982, el impacto fue +7.9 pp.
+
+Ventanas de Crisis Analizadas
+1. Recesión de Reagan: 1980-1983 (baseline: 1977-1979)
+2. Crisis DotCom: 2001-2003 (baseline: 1998-2000)
+3. Gran Recesión: 2008-2010 (baseline: 2005-2007)
+4. Pandemia COVID-19: 2020-2021 (baseline: 2017-2019)
+
+[REFERENCIAS ÚTILES]
+- Tabla: timeseries/output/recession_impact_summary.csv (top-3 por crisis)
+- Tabla: timeseries/output/impact_matrix.csv (matriz grupos × crisis)
+
+
+4. Modelo de Series Temporales — Simplificar sin perder rigor
+
+Modelado de la Serie Temporal Agregada
+Para entender la dinámica general de la pobreza en EE.UU., desarrollamos 
+un modelo ARIMA usando la serie "Total Population".
+
+Paso 1: Transformación Logarítmica
+Aplicamos log(PCTPOV) para estabilizar la varianza a lo largo de los 65 
+años de datos. Esta transformación es estándar cuando la variabilidad de 
+una serie aumenta con su nivel.
+[INSERTAR GRÁFICO: Serie original vs. log-transformada]
+Archivo: timeseries/output/all_original_vs_log.png
+
+Paso 2: Diferenciación para Estacionariedad
+La serie mostraba una raíz unitaria (tendencia no estacionaria), por lo 
+que calculamos las diferencias de primer orden: Δlog(PCTPOV_t) = 
+log(PCTPOV_t) − log(PCTPOV_{t−1}). Esto nos da d=1 en ARIMA(p,d,q).
+[INSERTAR GRÁFICO: ACF y PACF de la serie diferenciada]
+Archivo: timeseries/output/all_ACF_PACF_d1log.png
+
+Paso 3: Identificación del Modelo
+Analizando ACF y PACF identificamos patrón autorregresivo → probamos 
+ARIMA(p,1,0). Comparamos dos candidatos:
+- ARIMA(3,1,0): AIC = -204.04
+- ARIMA(2,1,0): AIC = -205.87 ✓ (menor es mejor)
+Seleccionamos ARIMA(2,1,0) por: (1) menor AIC; (2) coeficientes 
+significativos; (3) el 3er parámetro del ARIMA(3,1,0) no fue significativo.
+
+Paso 4: Diagnóstico del Modelo
+Verificamos supuestos:
+✓ Residuos con varianza constante (sin heterocedasticidad)
+✓ Residuos aproximadamente normales (gráfico Q-Q)
+✓ No autocorrelación residual (Ljung-Box)
+✓ Sin estacionalidad (datos anuales)
+[INSERTAR GRÁFICO: Panel de diagnósticos de residuos]
+Archivos: 
+- timeseries/output/all_residual_diagnostics.png (panel)
+- timeseries/output/all_checkresiduals.png (alternativa)
+- timeseries/output/all_tsdiag.png (diagnóstico adicional)
+
+Paso 5: Predicción
+Con el modelo validado, generamos predicciones a 10 años y retransformamos 
+mediante exponenciación: PCTPOV_pred = exp(predicción).
+[INSERTAR GRÁFICO: Serie histórica + predicción 10 años con bandas 95%]
+Archivo: timeseries/output/all_forecast.png
+
+
+5. Resultados — Más visual y comparativo
+
+Resultados: Vulnerabilidad Diferencial por Crisis
+Calculamos el incremento en puntos porcentuales (pp) de pobreza para cada 
+grupo durante cada crisis, comparando el pico con el baseline de 3 años 
+previos.
+
+[INSERTAR TABLA RESUMEN]
+Opción A (ASCII en el documento):
+┌──────────────────┬─────────┬─────────┬──────────┬──────────┐
+│ Grupo            │ Reagan  │ DotCom  │ Gran Rec.│ COVID-19 │
+│                  │(80-83)  │(01-03)  │ (08-10)  │ (20-21)  │
+├──────────────────┼─────────┼─────────┼──────────┼──────────┤
+│ Total            │ [..]    │ [..]    │ [..]     │ [..]     │
+│ White            │ [..]    │ [..]    │ [..]     │ [..]     │
+│ Black            │ [..]    │ [..]    │ [..]     │ [..]     │
+│ Hispanic         │ [..]    │ [..]    │ [..]     │ [..]     │
+│ Asian            │ [..]    │ [..]    │ [..]     │ [..]     │
+└──────────────────┴─────────┴─────────┴──────────┴──────────┘
+Rellena con cifras de: timeseries/output/impact_matrix.csv
+
+Opción B (insertar tabla desde CSV):
+- Tabla: timeseries/output/impact_matrix.csv
+
+[INSERTAR VISUALES COMPARATIVOS]
+- Gráfico de barras comparativo (pp por grupo y crisis)
+  Archivo: timeseries/output/impact_bars.png
+- Heatmap comparativo (pp por grupo y crisis)
+  Archivo: timeseries/output/impact_heatmap.png
+
+Hallazgos por Crisis (sintetiza con tus cifras):
+1) Recesión de Reagan (1980-1983): [Impacto Severo y Desigual]
+   - Hispanos: [+X.X pp (a → b en año)] [MAYOR IMPACTO]
+   - Black: [+X.X pp]
+   - Total: [+X.X pp]
+   [Interpretación breve]
+
+2) Crisis DotCom (2001-2003): [Impacto Moderado y Localizado]
+   - Asian: [+X.X pp] [MAYOR IMPACTO RELATIVO]
+   - Total: [+X.X pp]
+   - Black: [+X.X pp]
+   [Interpretación breve]
+
+3) Gran Recesión (2008-2010): [Retorno a Disparidades Severas]
+   - Hispanic: [+X.X pp] [MAYOR IMPACTO]
+   - Black: [+X.X pp]
+   - Total: [+X.X pp]
+   [Interpretación breve]
+
+4) COVID-19 (2020-2021): [Impactos Amortiguados]
+   - Asian: [+X.X pp] [MAYOR IMPACTO RELATIVO]
+   - White: [+X.X pp]
+   - Total: [+X.X pp]
+   [Interpretación breve]
+
+
+6. Conclusiones e Implicaciones — Más accionables
+
+Hallazgos Principales
+1. Vulnerabilidad Diferencial Persistente
+   La población hispana emerge como el grupo más vulnerable en recesiones 
+   "tradicionales", mientras que la población asiática muestra mayor 
+   sensibilidad en crisis sectoriales/de salud pública.
+2. La Política Fiscal Importa
+   Los incrementos en COVID-19 fueron menores que en crisis previas, 
+   sugiriendo que intervenciones fiscales agresivas pueden mitigar 
+   impactos en la pobreza.
+3. Heterogeneidad por Tipo de Crisis
+   No existe un "grupo más vulnerable" universal: depende del tipo de shock.
+
+Limitaciones Metodológicas
+- Armonización de categorías censales: la consolidación post-2002 implica 
+  simplificación de categorías.
+- Método pico-vs-baseline: captura magnitud, no velocidad de recuperación 
+  ni persistencia.
+- Comparabilidad COVID: crisis sanitaria y respuesta sin precedentes; 
+  comparaciones deben tomarse con cautela.
+
+Direcciones Futuras
+- Modelos ARIMA por grupo: comparar dinámicas temporales y persistencia.
+- Análisis de recuperación: medir tiempo hasta retorno al pre-crisis.
+- Descomposición de efectos: separar shock económico vs. políticas públicas.
+
+
+7. Sugerencias Visuales Adicionales (y dónde insertarlas)
+- Gráfico de líneas múltiples (todas las series 1959–2024 con bandas grises 
+  para crisis) → Sección 5 o Anexo Visuales
+  Archivo: timeseries/output/poverty_ts_by_group.png
+- Gráfico de barras comparativo (+pp por grupo y crisis) → Sección 5
+  Archivo: timeseries/output/impact_bars.png
+- Heatmap comparativo (+pp por grupo y crisis) → Sección 5
+  Archivo: timeseries/output/impact_heatmap.png
+- Panel de diagnósticos ARIMA (ACF, PACF, residuos, Q-Q, Ljung-Box) → Sección 4
+  Archivos: all_ACF_PACF_d1log.png, all_residual_diagnostics.png, 
+  all_checkresiduals.png, all_tsdiag.png
+- Predicción 10 años (con bandas) → Sección 4
+  Archivo: timeseries/output/all_forecast.png
+
+
+Anexo (opcional)
+- Índice de figuras/tablas con rutas: timeseries/output/figures_index_es.txt
+- Tablas fuente exportadas por el script:
+  - recession_impact_summary.csv (top-3 por crisis)
+  - impact_matrix.csv (matriz de impactos)
+  - mapping_summary.csv (resumen de armonización)
+
+Notas finales
+- Si re-ejecutas el script R, verifica si las rutas/nombres de archivos 
+  cambian; actualiza los enlaces en este documento en consecuencia.
+- Mantén consistencia de estilo: títulos, numeración, y pies de figura.

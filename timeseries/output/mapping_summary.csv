@@ -1,0 +1,9 @@
+group,RACE_NAME,start_year,end_year,n_years
+All,All Races,1959,2024,66
+Asian,Asian Alone,2002,2024,23
+Asian,Asian and Pacific Islander,1987,2001,15
+Black,Black,1959,2001,37
+Black,Black Alone,2002,2024,23
+Hispanic,Hispanic (of any race),1972,2024,53
+White,White,1959,2001,43
+White,"White Alone, Not Hispanic",2002,2024,23

@@ -15,84 +15,15 @@ library(car)      # residualPlot
 library(RcmdrMisc)#
 library(multcomp) # cld 
 library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(tibble)  #
 ```
 
 ```{r echo = FALSE, message=FALSE}
 dd    <- read.csv("C:/Users/javil/OneDrive/Documentos/UPC/2n/ME/Proyecto/demographic/demographic.csv") # Llegir
 summary(dd)
 ```
-#Description
-'RIAGENDR',          # género del participante, factor, 1 hombre 2 mujer
-    'RIDAGEYR',          # edad del participante, numerica
-    'RIDRETH3',          # raza / etnia, factor 1:Mexican American 2:Other Hispanic 3:Non-Hispanic White 4:Non-Hispanic Black 6:Non-Hispanic Asian 7:Other Race - Including Multi-Racial
-    'DMDBORN4',          # país de nacimiento, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
-    'DMDCITZN',          # ciudadanía, factor
-    'SIALANG',           # idioma de entrevista, factor, 1 english 2 spanish
-    'SIAINTRP',          # uso de intérprete, factor 1 yes 2 no
-    'DMDFMSIZ',          # tamaño de la familia, numerica discreta
-    'DMDHHSZA',          # niños <5, factor 0:none 1:1, 2:2, 3:3 o mas
-    'DMDHHSZB',          # niños 6–17, factor 0:none 1:1, 2:2, 3:3, 4:4 o mas
-    'DMDHHSZE',          # adultos ≥60, factor, 0:none 1:1, 2:2, 3:3 o mas
-    'DMDHRGND',          # género del cabeza de familia, factor 1 hombre 2 mujer
-    'DMDHRAGE',          # edad del cabeza de familia, numerica discreta
-    'DMDHRBR4',          # país de nacimiento del cabeza, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
-    'DMDHREDU',          # educación del cabeza, factor 1:Less than 9th grade 2:9-11th grade (Includes 12th grade with no diploma) 3:High school graduate/GED or equivalent 4:Some college or AA degree 5:College graduate or above 7:refused 9:Don't know
-    'DMDHRMAR'           # estado civil del cabeza, factor 1:Married 2:Widowed 3:Divorced 4:Separated 5:Never married 6:Living with partner 77:Refused 99:Don't know
-```{r echo = FALSE, message=FALSE}
-# Correlaciones para numéricas
-num_vars <- dd %>% select_if(is.numeric)
-correlations <- sapply(num_vars, function(x) cor(x, dd$INDFMPIR, use = "pairwise.complete.obs"))
-sort(correlations, decreasing = TRUE)
-
-# Para categóricas: prueba de ANOVA o Chi-square
-anova_result <- aov(INDFMPIR ~ DMDEDUC2, data = dd)
-summary(anova_result)
-
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-library(tibble)  # <-- AÑADE ESTA LÍNEA
-
-
-# Matriz de correlaciones solo con INDFMPIR
-cor_matrix <- dd %>%
-	select(where(~is.numeric(.x) && !inherits(.x, c("Period", "hms", "difftime")))) %>%
-	cor(use = "pairwise.complete.obs")
-
-# Extraer solo la fila/columna de INDFMPIR
-cor_indfmpir <- cor_matrix["INDFMPIR", ] %>%
-	as.data.frame() %>%
-	rownames_to_column("variable") %>%
-	rename(correlation = 2) %>%
-	filter(variable != "INDFMPIR") %>%  # Quitar la correlación consigo misma
-	arrange(desc(abs(correlation)))  # Ordenar por correlación absoluta
-
-# Ver tabla
-print(cor_indfmpir)
-
-# Gráfico de barras
-ggplot(cor_indfmpir, aes(x = reorder(variable, correlation), y = correlation, fill = correlation)) +
-	geom_col() +
-	geom_text(aes(label = sprintf("%.2f", correlation)), hjust = 1.2, size = 3) +
-	coord_flip() +
-	scale_fill_gradient2(low = "#d7191c", mid = "#ffffbf", high = "#2c7bb6", midpoint = 0) +
-	theme_minimal() +
-	labs(title = "Correlaciones con INDFMPIR",
-	     x = "Variable",
-	     y = "Correlación")
-
-```
-```{r echo = FALSE, message=FALSE}
-selected_features <- c(
-  'RIAGENDR', 'RIDAGEYR', 'DMDEDUC2', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
-  'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
-  'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
-  'DMDHRMAR', 'WTINT2YR','DMQMILIZ', 'INDFMPIR' 
-)
-dd <- dd[, colnames(dd) %in% selected_features]
-summary(dd)
-```
-
 ```{r echo = FALSE, message=FALSE}
 
 
@@ -120,32 +51,295 @@ dd$DMQMILIZ[dd$DMQMILIZ %in% c(7,9) | is.na(dd$DMQMILIZ)] <- 0
 dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
 dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0 
 
-summary(dd)
-```
-```{r echo = FALSE, message=FALSE}
-factor_vars <- c(
-  'RIAGENDR', 'RIDRETH3','DMDEDUC2', 'DMDBORN4', 'DMDCITZN', 
-  'SIALANG', 'SIAINTRP', 'DMDHHSZA', 'DMDHHSZB', 
-  'DMDHHSZE', 'DMDHRGND', 'DMDHRBR4', 'DMDHREDU', 
-  'DMDHRMAR', 'DMQMILIZ'
+
+
+# 2. DEFINIR VARIABLES CATEGÓRICAS
+categorical_vars <- c(
+  "AIALANGA", "FIALANG", "MIALANG", "SIALANG",
+  "FIAINTRP", "MIAINTRP", "SIAINTRP",
+  "FIAPROXY", "MIAPROXY", "SIAPROXY",
+  "DMDBORN4", "DMDHRBR4", "DMDCITZN",
+  "DMDEDUC2", "DMDEDUC3", "DMDHREDU", "DMDHSEDU",
+  "RIAGENDR", "DMDHRGND",
+  "DMDMARTL", "DMDHRMAR",
+  "RIDRETH1", "RIDRETH3",
+  "DMQMILIZ", "DMQADFC",
+  "RIDEXPRG", "RIDEXMON", "RIDSTATR", "SDDSRVYR",
+  "INDFMIN2", "INDHHIN2"
 )
 
-# Convertir a factor
-dd[factor_vars] <- lapply(dd[factor_vars], as.factor)
+# Convertir a factores 
+categorical_vars_existentes <- categorical_vars[categorical_vars %in% names(dd)]
+dd <- dd %>%
+  mutate(across(all_of(categorical_vars_existentes), as.factor))
+
+summary(dd)
+
+num_vars <- names(dd)[sapply(dd, is.numeric)]
+
+for (var in num_vars) {
+  x <- dd[[var]]
+  hist(
+    x[!is.na(x)],
+    main = paste("Distribución de", var, "(sin NA)"),
+    xlab = var,
+    ylab = "Frecuencia",
+    col = "lightblue",
+    border = "white"
+  )
+}
+
+# --- CATEGÓRICAS ---
+cat_vars <- names(dd)[sapply(dd, function(x) is.factor(x) || is.character(x))]
+
+for (var in cat_vars) {
+  x <- dd[[var]]
+  # Eliminar NA y convertir a factor
+  x <- factor(x[!is.na(x)])
+  
+  barplot(
+    table(x),
+    main = paste("Distribución de", var, "(sin NA)"),
+    xlab = var,
+    ylab = "Frecuencia",
+    col = "lightgreen",
+    border = "white",
+    las = 2,          # rota etiquetas del eje x si son largas
+    cex.names = 0.8   # ajusta tamaño de las etiquetas
+  )
+}
+```
+
+```{r echo = FALSE, message=FALSE}
+
+install.packages("tidyverse")
+library(tidyverse)
+
+dd_clean <- dd
+
+resultados <- data.frame(variable = character(), 
+                         asociacion = numeric(), 
+                         tipo = character(),
+                         stringsAsFactors = FALSE)
+
+# A) Variables NUMÉRICAS
+vars_numericas <- dd_clean %>% 
+  select(where(is.numeric), -INDFMPIR) %>% 
+  names()
+
+for(var in vars_numericas) {
+  if(var %in% names(dd_clean)) {
+    correlacion <- cor(dd_clean[[var]], dd_clean$INDFMPIR, 
+                       use = "pairwise.complete.obs")
+    if(!is.na(correlacion)) {
+      resultados <- rbind(resultados, 
+                         data.frame(variable = var, 
+                                   asociacion = correlacion,
+                                   tipo = "Numérica (r)"))
+    }
+  }
+}
+# B) Variables CATEGÓRICAS - Eta (Correlation Ratio)
+vars_categoricas <- dd_clean %>% 
+  select(where(is.factor)) %>% 
+  names()
+
+for(var in vars_categoricas) {
+  if(var %in% names(dd_clean) && sum(!is.na(dd_clean[[var]])) > 0) {
+    formula <- as.formula(paste("INDFMPIR ~", var))
+    
+    tryCatch({
+      modelo <- aov(formula, data = dd_clean)
+      ss <- summary(modelo)[[1]]$"Sum Sq"
+      
+      eta_squared <- ss[1] / sum(ss)
+      eta <- sqrt(eta_squared)
+      
+      resultados <- rbind(resultados, 
+                         data.frame(variable = var, 
+                                   asociacion = eta,
+                                   tipo = "Categórica (η)"))
+    }, error = function(e) {
+      # Si falla, omitir
+    })
+  }
+}
+
+# Ordenar resultados
+resultados <- resultados %>%
+  arrange(desc(abs(asociacion))) %>%
+  mutate(
+    variable_label = paste0(variable, " (", tipo, ")"),
+    direccion = ifelse(tipo == "Numérica (r)" & asociacion < 0, 
+                       "Negativa", "Positiva")
+  )
+
+# Ver tabla completa
+print(resultados)
+
+top_15 <- resultados %>%
+  arrange(desc(abs(asociacion))) %>%
+  head(15)
+
+grafica1 <- ggplot(top_15, aes(x = reorder(variable, abs(asociacion)), 
+                                y = asociacion,
+                                fill = tipo)) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = sprintf("%.3f", asociacion)), 
+            hjust = ifelse(top_15$asociacion > 0, -0.1, 1.1),
+            size = 4, fontface = "bold") +
+  coord_flip() +
+  scale_fill_manual(values = c("Numérica (r)" = "#2c7bb6", 
+                                "Categórica (η)" = "#d7191c")) +
+  theme_minimal(base_size = 12) +
+  labs(title = "TOP 15: Variables más asociadas con INDFMPIR",
+       subtitle = "Correlación de Pearson (r) para numéricas | Correlation Ratio (η) para categóricas",
+       x = "Variable",
+       y = "Fuerza de asociación",
+       fill = "Tipo") +
+  theme(axis.text.y = element_text(size = 11, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold"),
+        legend.position = "bottom")
+
+print(grafica1)
+
+medio_15 <- resultados %>%
+  arrange(desc(abs(asociacion))) %>%
+  slice(16:30)
+
+if(nrow(medio_15) > 0) {
+  grafica2 <- ggplot(medio_15, aes(x = reorder(variable, abs(asociacion)), 
+                                    y = asociacion,
+                                    fill = tipo)) +
+    geom_col(width = 0.7) +
+    geom_text(aes(label = sprintf("%.3f", asociacion)), 
+              hjust = ifelse(medio_15$asociacion > 0, -0.1, 1.1),
+              size = 4, fontface = "bold") +
+    coord_flip() +
+    scale_fill_manual(values = c("Numérica (r)" = "#2c7bb6", 
+                                  "Categórica (η)" = "#d7191c")) +
+    theme_minimal(base_size = 12) +
+    labs(title = "Posiciones 16-30: Variables con asociación media",
+         subtitle = "Correlación de Pearson (r) para numéricas | Correlation Ratio (η) para categóricas",
+         x = "Variable",
+         y = "Fuerza de asociación",
+         fill = "Tipo") +
+    theme(axis.text.y = element_text(size = 11, face = "bold"),
+          plot.title = element_text(size = 14, face = "bold"),
+          legend.position = "bottom")
+  
+  print(grafica2)
+}
+
+resto <- resultados %>%
+  arrange(desc(abs(asociacion))) %>%
+  slice(31:n())
+
+if(nrow(resto) > 0) {
+  grafica3 <- ggplot(resto, aes(x = reorder(variable, abs(asociacion)), 
+                                 y = asociacion,
+                                 fill = tipo)) +
+    geom_col(width = 0.7) +
+    geom_text(aes(label = sprintf("%.3f", asociacion)), 
+              hjust = ifelse(resto$asociacion > 0, -0.1, 1.1),
+              size = 3.5) +
+    coord_flip() +
+    scale_fill_manual(values = c("Numérica (r)" = "#2c7bb6", 
+                                  "Categórica (η)" = "#d7191c")) +
+    theme_minimal(base_size = 11) +
+    labs(title = "Resto de variables: Asociación débil",
+         subtitle = "Correlación de Pearson (r) para numéricas | Correlation Ratio (η) para categóricas",
+         x = "Variable",
+         y = "Fuerza de asociación",
+         fill = "Tipo") +
+    theme(axis.text.y = element_text(size = 10),
+          plot.title = element_text(size = 14, face = "bold"),
+          legend.position = "bottom")
+  
+  print(grafica3)
+}
+
+
+top_20_heatmap <- resultados %>%
+  arrange(desc(abs(asociacion))) %>%
+  head(20)
+
+heatmap <- ggplot(top_20_heatmap, aes(x = 1, y = reorder(variable, abs(asociacion)), 
+                                       fill = asociacion)) +
+  geom_tile(color = "white", size = 1.5) +
+  geom_text(aes(label = sprintf("%.3f", asociacion)), 
+            color = "black", fontface = "bold", size = 5) +
+  scale_fill_gradient2(low = "#d7191c", mid = "#ffffbf", high = "#2c7bb6",
+                       midpoint = 0, limits = c(-1, 1)) +
+  theme_minimal(base_size = 12) +
+  labs(title = "HEATMAP: Top 20 Variables más asociadas con INDFMPIR",
+       x = "", y = "",
+       fill = "Asociación") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.text.y = element_text(size = 11, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold"))
+
+print(heatmap)
+
+
+```
+#Description
+'RIAGENDR',          # género del participante, factor, 1 hombre 2 mujer
+    'RIDAGEYR',          # edad del participante, numerica
+    'RIDRETH3',          # raza / etnia, factor 1:Mexican American 2:Other Hispanic 3:Non-Hispanic White 4:Non-Hispanic Black 6:Non-Hispanic Asian 7:Other Race - Including Multi-Racial
+    'DMDBORN4',          # país de nacimiento, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
+    'DMDCITZN',          # ciudadanía, factor
+    'SIALANG',           # idioma de entrevista, factor, 1 english 2 spanish
+    'SIAINTRP',          # uso de intérprete, factor 1 yes 2 no
+    'DMDFMSIZ',          # tamaño de la familia, numerica discreta
+    'DMDHHSZA',          # niños <5, factor 0:none 1:1, 2:2, 3:3 o mas
+    'DMDHHSZB',          # niños 6–17, factor 0:none 1:1, 2:2, 3:3, 4:4 o mas
+    'DMDHHSZE',          # adultos ≥60, factor, 0:none 1:1, 2:2, 3:3 o mas
+    'DMDHRGND',          # género del cabeza de familia, factor 1 hombre 2 mujer
+    'DMDHRAGE',          # edad del cabeza de familia, numerica discreta
+    'DMDHRBR4',          # país de nacimiento del cabeza, factor 1:Born in 50 US states or Washington, DC 2:others 77:Refused 99: Don't know
+    'DMDHREDU',          # educación del cabeza, factor 1:Less than 9th grade 2:9-11th grade (Includes 12th grade with no diploma) 3:High school graduate/GED or equivalent 4:Some college or AA degree 5:College graduate or above 7:refused 9:Don't know
+    'DMDHRMAR'           # estado civil del cabeza, factor 1:Married 2:Widowed 3:Divorced 4:Separated 5:Never married 6:Living with partner 77:Refused 99:Don't know
+
+```{r echo = FALSE, message=FALSE}
+selected_features <- c(
+  'RIAGENDR', 'RIDAGEYR', 'DMDEDUC2', 'RIDRETH3', 'DMDBORN4', 'DMDCITZN',
+  'SIALANG', 'SIAINTRP', 'DMDFMSIZ', 'DMDHHSZA', 'DMDHHSZB',
+  'DMDHHSZE', 'DMDHRGND', 'DMDHRAGE', 'DMDHRBR4', 'DMDHREDU',
+  'DMDHRMAR', 'WTINT2YR','DMQMILIZ', 'INDFMPIR' 
+)
+dd <- dd[, colnames(dd) %in% selected_features]
 summary(dd)
 ```
 #there are missing values in target variable
+```{r echo = FALSE, message=FALSE}
+dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
+dd[dd$INDFMPIR <= 0, ]
+dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
+dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
+
+dd_binary <- dd %>%
+  filter(!is.na(DMQMILIZ), DMQMILIZ != 0) %>%   # elimina NA y 0
+  mutate(DMQMILIZ = ifelse(DMQMILIZ == 2, 0, 1))
+#there are values that are 0 in the codification, in the NHANES documentation 0 is said to be as missing values, or could not be determined
+#we will assume it as missing data
+
+summary(dd_binary)
+```
 
 ```{r echo = FALSE, message=FALSE}
-par(mfrow=c(4,5), mar=c(3,3,3,1)) 
+
+par(mfrow=c(2,5), mar=c(2,2,2,1)) 
 colors <- c(2,3)                 
-group_var <- "RIAGENDR"   
+group_var <- "DMQMILIZ"   
 
 vars <- setdiff(selected_features, "INDFMPIR")
 
 vars <- setdiff(vars, group_var)
 
-group_levels <- unique(na.omit(dd[[group_var]]))
+group_levels <- unique(na.omit(dd_binary[[group_var]]))
 if(length(group_levels) == 2){
   colors <- c("tomato","seagreen")
 } else {
@@ -163,24 +357,24 @@ par(mfrow = c(nrow_plot, ncol_plot), mar = c(3,3,3,1), oma = c(0,0,2,0))
 # Boxplot if numeric and barplot if categorical
 for (v in vars) {
   # si variable NO es factor (numérica) -> boxplot por grupo (horizontal)
-  if (is.numeric(dd[[v]])) {
+  if (is.numeric(dd_binary[[v]])) {
     # Convertir grupo a factor para orden consistente en boxplot
-    grp <- factor(dd[[group_var]])
+    grp <- factor(dd_binary[[group_var]])
     form <- as.formula(paste(v, "~", group_var))
     # boxplot con colores por nivel del grupo
-    boxplot(form, data = dd, main = v, col = colors, horizontal = TRUE, outline = TRUE,
+    boxplot(form, data = dd_binary, main = v, col = colors, horizontal = TRUE, outline = TRUE,
             xlab = "", ylab = "", las = 1)
   } else {
     # variable categórica -> barplot de proporciones por columna (similar ejemplo)
     # tabla de contingencia: rows = group, cols = categories of v
-    tab <- table(dd[[group_var]], dd[[v]], useNA = "ifany")
+    tab <- table(dd_binary[[group_var]], dd_binary[[v]], useNA = "ifany")
     # prop.table por columnas (proporción dentro de cada categoría de v)
     prop_tab <- prop.table(tab, margin = 2)
     # barplot (stacked) con leyenda
     barplot(prop_tab, main = v, col = colors, beside = FALSE, las = 1)
     # añadir leyenda si hay espacio
     if (length(group_levels) <= 6) {
-      legend("topright", legend = levels(factor(dd[[group_var]])), fill = colors, cex = 0.8, bty = "n")
+      legend("topright", legend = levels(factor(dd_binary[[group_var]])), fill = colors, cex = 0.8, bty = "n")
     }
   }
 }
@@ -196,17 +390,6 @@ hist(
 ```
 
 #the distribution is not normal, as the values are a small percentage of the data we could impute by the median
-```{r echo = FALSE, message=FALSE}
-dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
-
-summary(dd)
-
-dd[dd$INDFMPIR <= 0, ]
-dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
-dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
-#there are values that are 0 in the codification, in the NHANES documentation 0 is said to be as missing values, or could not be determined
-#we will assume it as missing data
-```
 
 ```{r echo = FALSE, message=FALSE}
 
@@ -223,16 +406,6 @@ ggplot(dd, aes(x = DMDEDUC2, y = INDFMPIR, fill = RIAGENDR)) +
        y = "INDFMPIR") +
   theme_minimal()
 #seems to be a little interaction
-
-ggplot(dd, aes(x = DMDEDUC2, y = INDFMPIR, color = RIAGENDR)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(title = "Interacción: Edad × Género sobre INDFMPIR",
-       x = "Edad",
-       y = "INDFMPIR",
-       color = "Género") +
-  theme_minimal()
-#does not seem to be interaction
 
 ggplot(dd, aes(x = DMDBORN4, y = INDFMPIR, fill = SIALANG)) +
   geom_boxplot() +
@@ -263,31 +436,19 @@ ggplot(dd, aes(x = SIAINTRP, y = INDFMPIR, fill = DMDCITZN)) +
        y = "INDFMPIR") +
   theme_minimal()
 #not much
-ggplot(dd, aes(x = DMDFMSIZ, y = INDFMPIR, fill = DMDHHSZA)) +
-  geom_boxplot() +
-  labs(title = "Interacción: family size x number of 5 yold children",
-       x = "Nivel educativo",
-       y = "INDFMPIR") +
-  theme_minimal()
+
 #we have tried modified models with each interaction, the only relevaant for model that we should include is dmdborn4 x sialang
 ```
 #gaussian and identity link is not a good option but we do it to test
 ```{r echo=FALSE, message=FALSE}
 
-mlgz <- glm(INDFMPIR ~ . - DMQMILIZ, dd, family = gaussian(link=identity))
+mlgz <- glm(INDFMPIR ~ ., dd, family = gaussian(link=identity))
 summary(mlgz)
 
 Anova(mlgz, test.statistic = 'LR')
 
-deviance_residual <- deviance(mlgz)       # devianza residual del modelo
-df_residual <- df.residual(mlgz) 
-
 #deviance not good
-pearson_chisq <- sum(residuals(mlgz, type = "pearson")^2)
-df_resid <- df.residual(mlgz) 
 
-pearson_ratio <- pearson_chisq / df_resid
-pearson_ratio
 
 
 ```
@@ -313,7 +474,7 @@ dd[213, ]
 #lets change the family and link function
 ```{r echo = FALSE, message=FALSE}
 
-mlgz2 <- glm(INDFMPIR ~ .+ DMDEDUC2*SIALANG - DMQMILIZ, dd, family = gaussian(link=log))
+mlgz2 <- glm(INDFMPIR ~ .+ DMDEDUC2*SIALANG, dd, family = gaussian(link=log))
 summary(mlgz2)
 
 Anova(mlgz2, test.statistic = 'LR')
@@ -321,12 +482,11 @@ Anova(mlgz2, test.statistic = 'LR')
 residualPlots(mlgz2, layout = c(2,1), ask = FALSE, tests = FALSE)
 
 ```
-#improves but not much
 
 
 ```{r echo = FALSE, message=FALSE}
 
-mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG - DMQMILIZ, dd, family = Gamma(link=log))
+mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG, dd, family = Gamma(link=log))
 summary(mlgz3)
 
 Anova(mlgz3, test.statistic = 'LR')
@@ -348,12 +508,66 @@ influencePlot(model=mlgz3)
 
 ```{r echo = FALSE, message=FALSE}
 # it has so much missing values, but we cant work on the rows without NA
-dd_binary <- dd %>%
-  filter(!is.na(DMQMILIZ), DMQMILIZ != 0) %>%   # elimina NA y 0
-  mutate(DMQMILIZ = ifelse(DMQMILIZ == 2, 0, 1))  # convierte 2→0, deja 1→1 , originalmente 1-yes 2-No
+table(dd_binary$DMQMILIZ)
+
+# Separar por clase
+casos_0 <- which(dd_binary$DMQMILIZ == 0)
+casos_1 <- which(dd_binary$DMQMILIZ == 1)
+
+# Número de casos a mantener de la clase 0
+n_0_nuevo <- length(casos_1)
+
+# Seleccionar aleatoriamente n_0_nuevo casos de los 0's
+set.seed(123)  # para reproducibilidad
+casos_0_muestreados <- sample(casos_0, size = n_0_nuevo, replace = FALSE)
+
+# Combinar los índices de las dos clases
+indices_finales <- sort(c(casos_0_muestreados, casos_1))
+
+# Crear dataset balanceado
+dd_binary_balanced <- dd_binary[indices_finales, ]
+
+levels(factor(dd_binary_balanced$DMDBORN4))
+levels(factor(dd_binary$DMDBORN4))
+
+# Verificar el balance
+table(dd_binary_balanced$DMQMILIZ)
+table(dd_binary$DMQMILIZ)
+
+vars_categoricas <- c("RIAGENDR", "RIDRETH3", "DMQMILIZ", "DMDBORN4", "DMDCITZN", 
+                      "DMDEDUC2", "SIALANG", "SIAINTRP", "DMDHRGND", "DMDHRBR4", "DMDHREDU", "DMDHRMAR")
+
+# Threshold: elimina categorías con menos de N observaciones
+threshold <- 200 # Cambia este número según lo que consideres "raro"
+
+# Para cada variable categórica, elimina filas con categorías raras
+for (var in vars_categoricas) {
+  if (var %in% names(dd_binary)) {
+    # Contar frecuencias
+    freq <- table(dd_binary[[var]], useNA = "ifany")
+    
+    # Identificar categorías raras (menos de threshold)
+    categorias_raras <- names(freq[freq < threshold])
+    
+    if (length(categorias_raras) > 0) {
+      cat(var, "- Categorías raras (< ", threshold, "):", categorias_raras, "\n")
+      
+      # Eliminar filas con categorías raras
+      dd_binary <- dd_binary[!(dd_binary[[var]] %in% categorias_raras), ]
+    }
+  }
+}
+
+
 summary(dd_binary)
 
-table(dd_binary$DMQMILIZ)
+summary(mb_balanced <- glm(DMQMILIZ ~ ., dd_binary_balanced, family=binomial(link='logit')))
+
+Anova(mb_balanced, test.statistic = 'LR')
+
+pred_balanced <- predict(mb_balanced, newdata = dd_binary, type = "response")
+roc(dd_binary$DMQMILIZ, pred_balanced)
+
 
 summary(mb <- glm(DMQMILIZ ~ ., dd_binary, family=binomial(link='logit')))
 #we cann clearly see a case of quasi-separation on this model, solutions --> reduce complexity or use penalised regression
@@ -361,11 +575,19 @@ summary(mb <- glm(DMQMILIZ ~ ., dd_binary, family=binomial(link='logit')))
 Anova(mb, test.statistic = 'LR')
 #lets remove columns that have p-value insignificant
 
+residualPlots(mb, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+pred <- predict(mb, type = "response")
+roc(dd_binary$DMQMILIZ, pred)
+
 summary(mb2 <- glm(DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDBORN4 + DMDCITZN + DMDEDUC2 + SIALANG + DMDHHSZA + WTINT2YR, dd_binary, family=binomial(link='logit')))
 
 Anova(mb2, test.statistic = 'LR')
 
 residualPlots(mb2, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+pred2 <- predict(mb2, type = "response")
+roc(dd_binary$DMQMILIZ, pred2)
 
 #lets try penalised firth regression to solve this problem
 
@@ -387,7 +609,6 @@ roc(dd_binary$DMQMILIZ, pred)
 
 
 #area: 0.912 
-
 
 
 ```

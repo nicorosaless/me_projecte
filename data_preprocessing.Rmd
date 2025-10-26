@@ -49,7 +49,14 @@ dd$DMQMILIZ[dd$DMQMILIZ %in% c(7,9) | is.na(dd$DMQMILIZ)] <- 0
 
 # DMDHRMAR: valores existentes [1,2,3,4,5,6,NA,77,99]
 dd$DMDHRMAR <- as.numeric(dd$DMDHRMAR)
-dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0 
+dd$DMDHRMAR[dd$DMDHRMAR %in% c(77,99) | is.na(dd$DMDHRMAR)] <- 0
+
+cols_con_ceros <- c("DMDBORN4", "DMDCITZN", "DMDEDUC2", 
+                    "DMDHRBR4", "DMDHREDU", "DMQMILIZ", "DMDHRMAR")
+
+# Eliminar filas con algún 0 en esas columnas
+dd <- dd[rowSums(dd[cols_con_ceros] == 0) == 0, ]
+
 
 
 
@@ -75,10 +82,18 @@ dd <- dd %>%
 
 summary(dd)
 
-num_vars <- names(dd)[sapply(dd, is.numeric)]
+num_vars <- names(dd)[sapply(dd, function(x) is.numeric(x) && !is.factor(x))]
 
+# Comprobar qué columnas se van a graficar
+print(num_vars)
+
+# Crear un histograma para cada una
 for (var in num_vars) {
   x <- dd[[var]]
+  
+  # Verifica que haya datos válidos
+  if (all(is.na(x))) next
+  
   hist(
     x[!is.na(x)],
     main = paste("Distribución de", var, "(sin NA)"),
@@ -88,14 +103,20 @@ for (var in num_vars) {
     border = "white"
   )
 }
-
 # --- CATEGÓRICAS ---
 cat_vars <- names(dd)[sapply(dd, function(x) is.factor(x) || is.character(x))]
 
 for (var in cat_vars) {
   x <- dd[[var]]
-  # Eliminar NA y convertir a factor
-  x <- factor(x[!is.na(x)])
+  x_no_na <- x[!is.na(x)]
+  
+  # si no hay datos, saltar al siguiente var
+  if (length(x_no_na) == 0) {
+    cat("  -> Skip:", var, "(sin datos no NA)\n")
+    next
+  }
+  
+  x <- factor(x_no_na)
   
   barplot(
     table(x),
@@ -462,14 +483,7 @@ residualPlots(mlgz, layout = c(2,1), ask = FALSE, tests = FALSE)
 influencePlot(model = mlgz)
 ```
 
-#330 is an important outlier
-```{r echo=FALSE, message=FALSE}
-dd[330, ]
-dd[1868, ]
-dd[213, ]
 
-```
-#the outliers seem to be relevant 
 
 #lets change the family and link function
 ```{r echo = FALSE, message=FALSE}
@@ -508,6 +522,11 @@ influencePlot(model=mlgz3)
 
 ```{r echo = FALSE, message=FALSE}
 # it has so much missing values, but we cant work on the rows without NA
+
+library(logistf)
+install.packages("pROC")
+library(pROC)
+
 table(dd_binary$DMQMILIZ)
 
 # Separar por clase
@@ -516,6 +535,7 @@ casos_1 <- which(dd_binary$DMQMILIZ == 1)
 
 # Número de casos a mantener de la clase 0
 n_0_nuevo <- length(casos_1)
+n_0_nuevo
 
 # Seleccionar aleatoriamente n_0_nuevo casos de los 0's
 set.seed(123)  # para reproducibilidad
@@ -537,27 +557,6 @@ table(dd_binary$DMQMILIZ)
 vars_categoricas <- c("RIAGENDR", "RIDRETH3", "DMQMILIZ", "DMDBORN4", "DMDCITZN", 
                       "DMDEDUC2", "SIALANG", "SIAINTRP", "DMDHRGND", "DMDHRBR4", "DMDHREDU", "DMDHRMAR")
 
-# Threshold: elimina categorías con menos de N observaciones
-threshold <- 200 # Cambia este número según lo que consideres "raro"
-
-# Para cada variable categórica, elimina filas con categorías raras
-for (var in vars_categoricas) {
-  if (var %in% names(dd_binary)) {
-    # Contar frecuencias
-    freq <- table(dd_binary[[var]], useNA = "ifany")
-    
-    # Identificar categorías raras (menos de threshold)
-    categorias_raras <- names(freq[freq < threshold])
-    
-    if (length(categorias_raras) > 0) {
-      cat(var, "- Categorías raras (< ", threshold, "):", categorias_raras, "\n")
-      
-      # Eliminar filas con categorías raras
-      dd_binary <- dd_binary[!(dd_binary[[var]] %in% categorias_raras), ]
-    }
-  }
-}
-
 
 summary(dd_binary)
 
@@ -568,6 +567,7 @@ Anova(mb_balanced, test.statistic = 'LR')
 pred_balanced <- predict(mb_balanced, newdata = dd_binary, type = "response")
 roc(dd_binary$DMQMILIZ, pred_balanced)
 
+residualPlots(mb_balanced, layout= c(2,1), ask= FALSE, tests = FALSE)
 
 summary(mb <- glm(DMQMILIZ ~ ., dd_binary, family=binomial(link='logit')))
 #we cann clearly see a case of quasi-separation on this model, solutions --> reduce complexity or use penalised regression
@@ -580,37 +580,15 @@ residualPlots(mb, layout = c(2,1), ask = FALSE, tests = FALSE)
 pred <- predict(mb, type = "response")
 roc(dd_binary$DMQMILIZ, pred)
 
-summary(mb2 <- glm(DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDBORN4 + DMDCITZN + DMDEDUC2 + SIALANG + DMDHHSZA + WTINT2YR, dd_binary, family=binomial(link='logit')))
-
-Anova(mb2, test.statistic = 'LR')
-
-residualPlots(mb2, layout = c(2,1), ask = FALSE, tests = FALSE)
-
-pred2 <- predict(mb2, type = "response")
-roc(dd_binary$DMQMILIZ, pred2)
-
-#lets try penalised firth regression to solve this problem
-
-library(logistf)
-install.packages("pROC")
-library(pROC)
-
-mb2_firth <- logistf(
-  DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDBORN4 +
-    DMDCITZN + DMDEDUC2 + SIALANG + DMDHHSZA + WTINT2YR,
-  data = dd_binary
-)
-summary(mb2_firth)
+summary(mb2_balanced <- glm(DMQMILIZ ~ + RIAGENDR + RIDAGEYR + RIDRETH3 + DMDCITZN + DMDEDUC2 + SIALANG, dd_binary_balanced, family=binomial(link='logit')))
 
 
-pred <- predict(mb2_firth, type = "response")
-roc(dd_binary$DMQMILIZ, pred)
+anova(mb_balanced, mb2_balanced, test = "Chisq")
 
+pred2_balanced <- predict(mb2_balanced, newdata = dd_binary, type = "response")
+roc(dd_binary$DMQMILIZ, pred2_balanced)
 
-
-#area: 0.912 
-
-
+residualPlots(mb2_balanced, layout = c(2,1), ask = FALSE, tests = FALSE)
 ```
 
 

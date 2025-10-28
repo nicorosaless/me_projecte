@@ -182,47 +182,63 @@ impact %>% group_by(window) %>% slice_max(order_by = delta_pp, n = 3, with_ties 
 # - Predict on log scale, back-transform via exp()
 
 series_all <- harmonized %>% filter(.data$group == "All") %>% arrange(.data$time)
+summary(series_all)
+table(series_all$time)
+start_year <- min(series_all$time)
 
-start_year <- min(series_all$time, na.rm = TRUE)
 ts_all <- ts(series_all$PCTPOV, start = start_year, frequency = 1)
 
+length(ts_all)
+
+plot((ts_all))
 # Log transform and differencing for exploration
 lng_all   <- log(ts_all)
 d1lng_all <- diff(lng_all)
 
 # ACF & PACF of differenced logs (as in class scripts)
-png(file.path(out_dir, "all_ACF_PACF_d1log.png"), width = 900, height = 400)
 par(mfrow = c(1,2))
+
 acf(d1lng_all, ylim = c(-1,1), lag.max = 40, main = "ACF (d1 log All Races)")
 pacf(d1lng_all, ylim = c(-1,1), lag.max = 40, main = "PACF (d1 log All Races)")
 dev.off()
 
+plot(d1lng_all)
 # Candidate models (mirror 04_ts_estimate.R pattern)
-all.arima1 <- arima(lng_all, order = c(3,1,0))
-all.arima2 <- arima(lng_all, order = c(2,1,0))
-
+all.arima1 <- arima(d1lng_all, order = c(3,1,0))
+all.arima2 <- arima(d1lng_all, order = c(2,1,0))
 # Coefficient significance ratios
 rat1 <- round(abs(all.arima1$coef / sqrt(diag(all.arima1$var.coef))), 2)
 rat2 <- round(abs(all.arima2$coef / sqrt(diag(all.arima2$var.coef))), 2)
 
+rat1
+rat2
+
+
 # Choose by AIC (record both)
 aic1 <- AIC(all.arima1); aic2 <- AIC(all.arima2)
 mod_def <- if (aic2 <= aic1) all.arima2 else all.arima1
+mod_def
+
+rat3 <- round(abs(mod_def$coef / sqrt(diag(mod_def$var.coef))), 2)
+rat3
 
 # Validation — like class scripts (04):
+
 resid <- mod_def$residuals
-png(file.path(out_dir, "all_residual_diagnostics.png"), width = 1000, height = 700)
+
 par(mfrow = c(2,2), mar = c(3,3,3,3))
+
 plot(resid, main = "Residuals")
 abline(h = c(0, -3*sd(resid), 3*sd(resid)), lty = c(1,3,3), col = c(1,4,4))
-scatter.smooth(sqrt(abs(resid)), main = "Square Root of Abs residuals", lpars = list(col = 2))
+
+scatter.smooth(sqrt(abs(resid)), main = "Square Root of Absolute residuals", lpars = list(col=2))
+
 qqnorm(resid); qqline(resid, col = 2, lwd = 2)
 hist(resid, breaks = 10, freq = FALSE, main = "Residuals histogram")
 curve(dnorm(x, mean = mean(resid), sd = sd(resid)), col = 2, add = TRUE)
 dev.off()
 
 # Independence diagnostics and consolidated checks
-png(file.path(out_dir, "all_tsdiag.png"), width = 1000, height = 500)
 tsdiag(mod_def, gof.lag = 20)
 dev.off()
 forecast::checkresiduals(mod_def)

@@ -57,10 +57,7 @@ cols_con_ceros <- c("DMDBORN4", "DMDCITZN", "DMDEDUC2",
 # Eliminar filas con algún 0 en esas columnas
 dd <- dd[rowSums(dd[cols_con_ceros] == 0) == 0, ]
 
-
-
-
-# 2. DEFINIR VARIABLES CATEGÓRICAS
+# variables categoricas
 categorical_vars <- c(
   "AIALANGA", "FIALANG", "MIALANG", "SIALANG",
   "FIAINTRP", "MIAINTRP", "SIAINTRP",
@@ -83,8 +80,6 @@ dd <- dd %>%
 summary(dd)
 
 num_vars <- names(dd)[sapply(dd, function(x) is.numeric(x) && !is.factor(x))]
-
-# Comprobar qué columnas se van a graficar
 print(num_vars)
 
 # Crear un histograma para cada una
@@ -103,7 +98,7 @@ for (var in num_vars) {
     border = "white"
   )
 }
-# --- CATEGÓRICAS ---
+#CATEGÓRICAS
 cat_vars <- names(dd)[sapply(dd, function(x) is.factor(x) || is.character(x))]
 
 for (var in cat_vars) {
@@ -125,8 +120,8 @@ for (var in cat_vars) {
     ylab = "Frecuencia",
     col = "lightgreen",
     border = "white",
-    las = 2,          # rota etiquetas del eje x si son largas
-    cex.names = 0.8   # ajusta tamaño de las etiquetas
+    las = 2,          
+    cex.names = 0.8   
   )
 }
 ```
@@ -160,7 +155,7 @@ for(var in vars_numericas) {
     }
   }
 }
-# B) Variables CATEGÓRICAS - Eta (Correlation Ratio)
+# B) Variables CATEGÓRICAS - (Correlation Ratio)
 vars_categoricas <- dd_clean %>% 
   select(where(is.factor)) %>% 
   names()
@@ -181,7 +176,7 @@ for(var in vars_categoricas) {
                                    asociacion = eta,
                                    tipo = "Categórica (η)"))
     }, error = function(e) {
-      # Si falla, omitir
+      
     })
   }
 }
@@ -336,10 +331,12 @@ summary(dd)
 ```
 #there are missing values in target variable
 ```{r echo = FALSE, message=FALSE}
+
 dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
 dd[dd$INDFMPIR <= 0, ]
 dd$INDFMPIR[dd$INDFMPIR <= 0] <- NA
-dd$INDFMPIR[is.na(dd$INDFMPIR)] <- median(dd$INDFMPIR, na.rm = TRUE)
+
+dd <- dd[!is.na(dd$INDFMPIR), ]
 
 dd_binary <- dd %>%
   filter(!is.na(DMQMILIZ), DMQMILIZ != 0) %>%   # elimina NA y 0
@@ -367,8 +364,8 @@ if(length(group_levels) == 2){
   colors <- grDevices::rainbow(length(group_levels))
 }
 
-# -------------- Preparar layout --------------
-# dimensiones automáticas para que no se corte: ncol por defecto 4
+
+# dimensiones automáticas para que no se corte
 n_vars <- length(vars)
 ncol_plot <- 4
 nrow_plot <- ceiling(n_vars / ncol_plot)
@@ -377,23 +374,15 @@ par(mfrow = c(nrow_plot, ncol_plot), mar = c(3,3,3,1), oma = c(0,0,2,0))
 
 # Boxplot if numeric and barplot if categorical
 for (v in vars) {
-  # si variable NO es factor (numérica) -> boxplot por grupo (horizontal)
   if (is.numeric(dd_binary[[v]])) {
-    # Convertir grupo a factor para orden consistente en boxplot
     grp <- factor(dd_binary[[group_var]])
     form <- as.formula(paste(v, "~", group_var))
-    # boxplot con colores por nivel del grupo
     boxplot(form, data = dd_binary, main = v, col = colors, horizontal = TRUE, outline = TRUE,
             xlab = "", ylab = "", las = 1)
   } else {
-    # variable categórica -> barplot de proporciones por columna (similar ejemplo)
-    # tabla de contingencia: rows = group, cols = categories of v
     tab <- table(dd_binary[[group_var]], dd_binary[[v]], useNA = "ifany")
-    # prop.table por columnas (proporción dentro de cada categoría de v)
     prop_tab <- prop.table(tab, margin = 2)
-    # barplot (stacked) con leyenda
     barplot(prop_tab, main = v, col = colors, beside = FALSE, las = 1)
-    # añadir leyenda si hay espacio
     if (length(group_levels) <= 6) {
       legend("topright", legend = levels(factor(dd_binary[[group_var]])), fill = colors, cex = 0.8, bty = "n")
     }
@@ -468,8 +457,6 @@ summary(mlgz)
 
 Anova(mlgz, test.statistic = 'LR')
 
-#deviance not good
-
 
 
 ```
@@ -477,7 +464,6 @@ Anova(mlgz, test.statistic = 'LR')
 ```{r echo=FALSE, message=FALSE}
 residualPlots(mlgz, layout = c(2,1), ask = FALSE, tests = FALSE)
 ```
-#we can see the line of the model is not good at all, its what we expected
 
 ```{r echo=FALSE, message=FALSE}
 influencePlot(model = mlgz)
@@ -500,6 +486,7 @@ residualPlots(mlgz2, layout = c(2,1), ask = FALSE, tests = FALSE)
 
 ```{r echo = FALSE, message=FALSE}
 
+
 mlgz3 <- glm(INDFMPIR ~ . + DMDEDUC2*SIALANG, dd, family = Gamma(link=log))
 summary(mlgz3)
 
@@ -521,7 +508,6 @@ influencePlot(model=mlgz3)
 
 
 ```{r echo = FALSE, message=FALSE}
-# it has so much missing values, but we cant work on the rows without NA
 
 library(logistf)
 install.packages("pROC")
@@ -537,8 +523,7 @@ casos_1 <- which(dd_binary$DMQMILIZ == 1)
 n_0_nuevo <- length(casos_1)
 n_0_nuevo
 
-# Seleccionar aleatoriamente n_0_nuevo casos de los 0's
-set.seed(123)  # para reproducibilidad
+set.seed(123)  # 
 casos_0_muestreados <- sample(casos_0, size = n_0_nuevo, replace = FALSE)
 
 # Combinar los índices de las dos clases
@@ -570,10 +555,9 @@ roc(dd_binary$DMQMILIZ, pred_balanced)
 residualPlots(mb_balanced, layout= c(2,1), ask= FALSE, tests = FALSE)
 
 summary(mb <- glm(DMQMILIZ ~ ., dd_binary, family=binomial(link='logit')))
-#we cann clearly see a case of quasi-separation on this model, solutions --> reduce complexity or use penalised regression
+
 
 Anova(mb, test.statistic = 'LR')
-#lets remove columns that have p-value insignificant
 
 residualPlots(mb, layout = c(2,1), ask = FALSE, tests = FALSE)
 
@@ -582,14 +566,25 @@ roc(dd_binary$DMQMILIZ, pred)
 
 summary(mb2_balanced <- glm(DMQMILIZ ~ + RIAGENDR + RIDAGEYR + RIDRETH3 + DMDCITZN + DMDEDUC2 + SIALANG, dd_binary_balanced, family=binomial(link='logit')))
 
+summary(mb3_balanced <- glm(DMQMILIZ ~ + RIAGENDR + RIDAGEYR + RIDRETH3 + DMDEDUC2 + SIALANG, dd_binary_balanced, family=binomial(link='logit')))
+
 
 anova(mb_balanced, mb2_balanced, test = "Chisq")
+anova(mb2_balanced, mb3_balanced, test = "Chisq")
 
 pred2_balanced <- predict(mb2_balanced, newdata = dd_binary, type = "response")
 roc(dd_binary$DMQMILIZ, pred2_balanced)
 
 residualPlots(mb2_balanced, layout = c(2,1), ask = FALSE, tests = FALSE)
+
+library(logistf)
+fit_firth <- logistf(DMQMILIZ ~ RIAGENDR + RIDAGEYR + RIDRETH3 + DMDCITZN + DMDEDUC2 + SIALANG, data = dd_binary_balanced)
+summary(fit_firth)
+
+pred4 <- predict(fit_firth, newdata = dd_binary, type = "response")
+roc(dd_binary$DMQMILIZ, pred4)
+
+nova(mb2_balanced, fit_firth, test = "Chisq")
+
+
 ```
-
-
-

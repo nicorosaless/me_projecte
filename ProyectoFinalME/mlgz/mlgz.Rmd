@@ -21,7 +21,7 @@ library(tibble)  #
 ```
 
 ```{r echo = FALSE, message=FALSE}
-dd    <- read.csv(".../demographic.csv") # #ajustar path
+dd    <- read.csv("C:/Users/javil/OneDrive/Documentos/UPC/2n/ME/Proyecto/demographic/demographic.csv") # Llegir
 summary(dd)
 ```
 ```{r echo = FALSE, message=FALSE}
@@ -74,8 +74,8 @@ categorical_vars <- c(
 
 # Convertir a factores 
 categorical_vars_existentes <- categorical_vars[categorical_vars %in% names(dd)]
-
-dd <- dd %>%mutate(across(all_of(categorical_vars_existentes), as.factor))
+dd <- dd %>%
+  mutate(across(all_of(categorical_vars_existentes), as.factor))
 
 summary(dd)
 
@@ -584,10 +584,7 @@ summary(fit_firth)
 pred4 <- predict(fit_firth, newdata = dd_binary, type = "response")
 roc(dd_binary$DMQMILIZ, pred4)
 
-anova(mb2_balanced, fit_firth, test = "Chisq")
+nova(mb2_balanced, fit_firth, test = "Chisq")
 
 
 ```
-
-
-
